@@ -85,10 +85,6 @@ Use environment variables or your secret store for the secrets, for example `Blu
 
 **Settings > Blue Billywig.**
 
-![The Blue Billywig settings dashboard in the Settings section: connection, defaults and content protection boxes](images/settings.png)
-
-*The settings dashboard: enter the connection here, then Save and Test connection.*
-
 Boxes:
 
 - **Blue Billywig connection**: publication, API ID, API secret, read-only ID and secret. Secrets are write-only: after saving, the field says one is stored; leave it empty to keep it. The **API base URL** is shown but never editable: every API call sends the read-write token to it, so it can only be set in configuration (`BlueBillywig:BaseUrl`, on a Blue Billywig domain). A save tests the credentials against Blue Billywig and is refused when they fail.
