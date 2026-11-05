@@ -4,7 +4,7 @@ Blue Billywig Online Video Platform (OVP) for Umbraco 17. Editors pick a video f
 
 ## Status
 
-Early. Version 0.1.0, **not released**, not on NuGet; the repository is private and the licence is not chosen. The package has been built against the development publication only, and a part of it is proven there, a part is built but not fully proven, and a few rows could not be proven in the test environment. [docs/PARITY.md](docs/PARITY.md) is the source of truth: one row per reference plugin feature, each marked Open, Partial, Proven or Blocked, with the evidence. Read it before you promise anything to a customer.
+Early. Version 0.1.0, **not released**, not on NuGet; the repository is private; the licence is MIT. The package has been built against the development publication only, and a part of it is proven there, a part is built but not fully proven, and a few rows could not be proven in the test environment. [docs/PARITY.md](docs/PARITY.md) is the source of truth: one row per reference plugin feature, each marked Open, Partial, Proven or Blocked, with the evidence. Read it before you promise anything to a customer.
 
 What is built:
 
@@ -63,4 +63,4 @@ To run the test site and use the package, follow [docs/DEVELOPMENT.md](docs/DEVE
 
 ## Licence
 
-Not chosen yet. The repository has no `LICENSE` file, and the package must not be published until one is added. The reference plugin declares GPLv2 or later, and the package ports logic from it, so the choice needs confirmation from whoever owns that code. See [docs/LICENSES.md](docs/LICENSES.md).
+MIT, copyright (c) 2026 Blue Billywig. See [LICENSE](LICENSE). Third-party licences are in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) and the scan in [docs/LICENSES.md](docs/LICENSES.md).

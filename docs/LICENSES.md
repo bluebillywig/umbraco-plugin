@@ -11,7 +11,7 @@ Rescan of 2026-11-04 (second pass; the first was the same day). Sources: `src/*/
 
 ## Our own licence
 
-Not chosen yet. This repo has no `LICENSE` file and the csproj has no licence element, so the nuspec has none. The package ports logic from the reference plugin, which declares GPLv2 or later in its `readme.txt`. Whether Blue Billywig can release a port under another licence depends on who owns that code, so a legal contact has to confirm it before the repo goes public or a package goes to NuGet.
+MIT, copyright (c) 2026 Blue Billywig (decided 2026-11-05; see `LICENSE` and the `PackageLicenseExpression` in the csproj). MIT is compatible with every dependency in the package's closure (all MIT, Apache-2.0, BSD or ISC). The reference plugin declares GPLv2 or later; Blue Billywig is the author and copyright holder of both, and the package reimplements behaviour in C# without copying its code, so the GPL does not bind this package. Ownership should still be confirmed by Blue Billywig's legal contact before the first public release.
 
 ## .NET dependencies
 
