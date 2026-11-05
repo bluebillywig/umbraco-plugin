@@ -72,6 +72,15 @@ The embed editor additions (the "Load preview" button and its two notes, the dra
 
 When a view is moved, remove it from this list in the same change.
 
+## Review log
+
+**2026-11-05, German, French and Dutch, reviewed by Guido Hultink (Blue Billywig).**
+
+- All 31 visitor texts: reviewed in full. Changes: Dutch `ctaSubscribe` is "Abonneren" (was "Aanmelden", which also means log in), Dutch `embedProblem` says "de Content Security Policy". Register confirmed: German "Sie", French "vous", Dutch "je".
+- The 43 backoffice strings with a placeholder, a long sentence or a confirm dialog: reviewed in full. Changes: French `bulkResult` is "{0} réussis, {1} échoués", German `uploadAbortFailed` says "im OVP von Blue Billywig", Dutch uses "voorbeelden" for previews and "In de cache opgeslagen antwoorden". Choices kept on purpose: "téléversé" (French), "Hij verschijnt" for a clip (Dutch), the loanword "Embeds" (German, French), the structure of the noun-slot error messages.
+- The Library browser and Settings sections of the short backoffice labels: offered for spot-check; no corrections were reported.
+- Everything else (the remaining ~120 short labels in the other sections), and Danish, Finnish, Norwegian and Swedish in full: **not reviewed by a native speaker**.
+
 ## Review checklist for a translator
 
 1. Read the language's `en.ts` side by side with its file; the comments in the file mark the groups.
