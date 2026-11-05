@@ -30,7 +30,7 @@ Where the Node requirement comes from, read from the installed packages:
 
 The target framework is `net10.0` (`src/BlueBillywig.Umbraco/BlueBillywig.Umbraco.csproj`). There is no `global.json`, so any installed SDK 10 is used.
 
-Network access is needed on the first build: NuGet restore from nuget.org (including `BlueBillywig.Sapi` 1.0.0) and `npm ci` from the npm registry. The repository is private, so authenticate first (`gh auth login`).
+Network access is needed on the first build: NuGet restore from nuget.org (including `BlueBillywig.Sapi` 1.0.0) and `npm ci` from the npm registry. Until the repository is made public at release time it is private, so authenticate first (`gh auth login`).
 
 ### macOS
 
@@ -75,7 +75,7 @@ Build succeeded.
     2 Warning(s)
     0 Error(s)
 Passed!  - Failed:     0, Passed:  1024, Skipped:     0, Total:  1024
-  Successfully created package '.../artifacts/BlueBillywig.Umbraco.0.1.0.nupkg'.
+  Successfully created package '.../artifacts/BlueBillywig.Umbraco.1.0.0-rc.1.nupkg'.
 ```
 
 The test count changes as tests are added.
@@ -140,7 +140,7 @@ The result is `artifacts/BlueBillywig.Umbraco.<Version>.nupkg`. `artifacts/` is 
 
 The library is a Razor SDK project (`Microsoft.NET.Sdk.Razor`) with `StaticWebAssetBasePath` set to `/`. Files under its `wwwroot/` are Static Web Assets. The SDK discovers them while MSBuild evaluates the project, which is when `dotnet build` and `dotnet pack` start. A file Vite writes after that point is not in the asset list, so it is not served by the host and not put in the package.
 
-Building in the wrong order does **not** fail. It was tried on a clean clone: restore, build and pack all succeeded, and the resulting `BlueBillywig.Umbraco.0.1.0.nupkg` contained only the DLL, the nuspec and the README, with no `staticwebassets/` at all. Such a package installs fine and then has no backoffice UI. After running the client build and `dotnet build` again on the same clone, the next pack contained all the files, so the fix is simply to build in order. Always check the contents (see [RELEASING.md](RELEASING.md)).
+Building in the wrong order does **not** fail. It was tried on a clean clone: restore, build and pack all succeeded, and the resulting 0.1.0 nupkg (an early build) contained only the DLL, the nuspec and the README, with no `staticwebassets/` at all. Such a package installs fine and then has no backoffice UI. After running the client build and `dotnet build` again on the same clone, the next pack contained all the files, so the fix is simply to build in order. Always check the contents (see [RELEASING.md](RELEASING.md)).
 
 ## Generating the API client
 
@@ -178,9 +178,9 @@ find src tests -type d \( -name bin -o -name obj \) -prune -exec rm -rf {} +
 
 ## Versioning and package contents
 
-The version is `<Version>` in `src/BlueBillywig.Umbraco/BlueBillywig.Umbraco.csproj` (currently `0.1.0`). It names the nupkg. To build another version without editing the file: `dotnet pack ... -p:Version=1.2.3` (the Blue Billywig SDK's publish workflow does this from the tag). The version also appears in `Client/public/umbraco-package.json` and `Client/package.json`; see [RELEASING.md](RELEASING.md).
+The version is `<Version>` in `src/BlueBillywig.Umbraco/BlueBillywig.Umbraco.csproj` (currently `1.0.0-rc.1`). It names the nupkg. To build another version without editing the file: `dotnet pack ... -p:Version=1.2.3` (`.github/workflows/publish.yaml` does this from the release tag). The version also appears in `Client/public/umbraco-package.json` and `Client/package.json`; see [RELEASING.md](RELEASING.md).
 
-Contents of the 0.1.0 package, from `unzip -l` on `./build.sh pack` of 2026-11-05 (47 files; no third-party DLL, see [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md)):
+Contents of the 1.0.0-rc.1 package, from `unzip -l` on `./build.sh pack` of 2026-11-05 (47 files; no third-party DLL, see [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md)):
 
 ```text
 lib/net10.0/BlueBillywig.Umbraco.dll
@@ -190,7 +190,7 @@ README.md
 BlueBillywig.Umbraco.nuspec
 ```
 
-The Razor views (`Views/Partials/...`) are compiled into the DLL. Nothing from `Client/src` or `node_modules` is in the package. The nuspec lists these dependencies: `BlueBillywig.Sapi`, `Swashbuckle.AspNetCore`, `Umbraco.Cms.Api.Common`, `Umbraco.Cms.Api.Management`, `Umbraco.Cms.Web.Common`, `Umbraco.Cms.Web.Website`, the four `Umbraco.Cms.*` ones as the range `[17.8.0, 18.0.0)` (set with `VersionOverride` in the csproj; checked in the nuspec on 2026-11-04), the other two as a minimum version. There is no `<license>` element yet (see [RELEASING.md](RELEASING.md)).
+The Razor views (`Views/Partials/...`) are compiled into the DLL. Nothing from `Client/src` or `node_modules` is in the package. The nuspec lists these dependencies: `BlueBillywig.Sapi`, `Swashbuckle.AspNetCore`, `Umbraco.Cms.Api.Common`, `Umbraco.Cms.Api.Management`, `Umbraco.Cms.Web.Common`, `Umbraco.Cms.Web.Website`, the four `Umbraco.Cms.*` ones as the range `[17.8.0, 18.0.0)` (set with `VersionOverride` in the csproj; checked in the nuspec on 2026-11-04), the other two as a minimum version. The nuspec has `<license type="expression">MIT</license>`, `<projectUrl>` and the repository URL (see [RELEASING.md](RELEASING.md)).
 
 ## Troubleshooting
 

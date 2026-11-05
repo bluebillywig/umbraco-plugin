@@ -116,9 +116,9 @@ Installed and in the lockfile but **not** in the bundle: `@types/retry`, `evente
 
 ## Open items
 
-1. Choose our licence, with legal confirmation of who owns the plugin code. Then add `LICENSE`, set the licence element in the csproj and update the README.
+1. Our licence is decided (MIT, `LICENSE`, csproj, README). Still to do: legal confirmation of who owns the plugin code, before the repository is made public and 1.0.0-rc.1 is published.
 2. Dazinator.Extensions.FileProviders 2.0.0 has no licence information in its package. NPoco.Abstractions and NPoco.SqlServer 6.3.0 have none either (their sibling NPoco is Apache-2.0). All three are transitive dependencies of Umbraco that the consumer's restore downloads; find the licence in their upstream repositories and record it, or ask Umbraco.
 3. DotNet.Glob, K4os.Compression.LZ4 and Markdown carry no licence text in their packages; the MIT result above comes from fetching the licence URLs in the nuspec through a summarising tool. Re-read the three texts directly before a release if the notices must quote them (they are transitive dependencies, not distributed by this package).
 4. Decide whether the install guide must warn site owners about the Six Labors Split License of Umbraco's ImageSharp packages. This package does not depend on them, so no entry is needed for the nupkg.
-5. `src/UmbracoSite/appsettings.json` has a generated `Umbraco:CMS:Imaging:HMACSecretKey` and `Umbraco:CMS:Global:Id` committed in the private repo. They belong to the development host site and aren't used by the package, but regenerate or move them out before the repo goes public.
+5. `src/UmbracoSite/appsettings.json` has a generated `Umbraco:CMS:Imaging:HMACSecretKey` and `Umbraco:CMS:Global:Id` committed in the repo, which will be made public at release time (no key is rotated and no history is deleted, by the owner's decision). They belong to the development host site and aren't used by the package, but they are development-site values only.
 6. Re-scan before each release (NuGet closure, `package-lock.json`, source maps) and regenerate `THIRD-PARTY-NOTICES.md` with its procedure. A new bundled package needs a notice before it ships.

@@ -1,6 +1,6 @@
 # Blue Billywig in Umbraco: guide for editors
 
-This guide covers what the package does today (version 0.1.0, not released). It lists only things that work, and says where a limit is known. Whoever manages your site installs the package, gives your user group the **Blue Billywig** section and enters the connection settings: see [INSTALL.md](INSTALL.md). Not everything below has been proven on a live publication; the full status per feature is in [PARITY.md](PARITY.md).
+This guide covers what the package does today (version 1.0.0-rc.1, a pre-release planned for nuget.org). It lists only things that work, and says where a limit is known. Whoever manages your site installs the package, gives your user group the **Blue Billywig** section and enters the connection settings: see [INSTALL.md](INSTALL.md). Not everything below has been proven on a live publication; the full status per feature is in [PARITY.md](PARITY.md).
 
 What you can do depends on your user group:
 

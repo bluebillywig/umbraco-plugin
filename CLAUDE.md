@@ -4,7 +4,7 @@ Guidance for Claude Code (claude.ai/code) when working in this repository.
 
 ## What this is
 
-`BlueBillywig.Umbraco`: Blue Billywig OVP (SAPI) integration for **Umbraco 17** (.NET 10, developed against 17.8.0), the counterpart of the reference plugin (version 2.0.5). Version 0.1.0, unreleased. Remote: `bluebillywig/umbraco-plugin` (private). Not released, not on NuGet. Licence not chosen yet; don't add a `LICENSE` or licence metadata. The goal is functional parity, tracked row by row in `docs/PARITY.md`. Don't mark a row Proven without the evidence it asks for.
+`BlueBillywig.Umbraco`: Blue Billywig OVP (SAPI) integration for **Umbraco 17** (.NET 10, developed against 17.8.0), the counterpart of the reference plugin (version 2.0.5). Version `1.0.0-rc.1`, a pre-release planned for nuget.org (not published yet). Remote: `bluebillywig/umbraco-plugin`, to be made public at release time. Licence MIT (`LICENSE`, `PackageLicenseExpression`). The goal is functional parity, tracked row by row in `docs/PARITY.md`. Don't mark a row Proven without the evidence it asks for.
 
 ## Commands
 
@@ -52,7 +52,7 @@ One package project, `src/BlueBillywig.Umbraco/` (Razor SDK, net10.0); a host si
 - **No new libraries, frameworks, test tools, linters, build plugins or CI providers without asking.** (Uppy is approved and pinned to 5.x; see `docs/DEVELOPMENT.md`.)
 - **No literal IPs** in scripts, config or docs.
 - **Do not commit or push** unless asked. PRs go to `bluebillywig/umbraco-plugin`, never to a fork. Never force-push without asking.
-- **No publish or release workflow** and no NuGet or Marketplace publishing without the owner's explicit decision (`docs/RELEASING.md`).
+- **Releasing**: the release workflows are in `.github/workflows/` (`docs/RELEASING.md`). Never run them, publish to NuGet or list on the Marketplace without the owner's explicit decision. Don't weaken them.
 - Third-party code added to what ships needs an entry in `THIRD-PARTY-NOTICES.md`.
 - Don't name the reference plugin's product or its repository or path in the repo; say "the reference plugin".
 

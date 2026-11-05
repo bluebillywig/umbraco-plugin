@@ -6,11 +6,12 @@
     <PackageId>BlueBillywig.Umbraco</PackageId>
     <Product>BlueBillywig.Umbraco</Product>
     <Title>BlueBillywig.Umbraco</Title>
-    <Version>0.1.0</Version>
+    <Version>1.0.0-rc.1</Version>
     <Authors>Blue Billywig</Authors>
     <Copyright>Copyright (c) 2026 Blue Billywig</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>Blue Billywig online video for Umbraco 17: a backoffice section to browse, upload and edit videos, a video picker property editor and rich text button, settings and analytics dashboards, a call to action editor, and server-rendered embeds with lazy loading, consent placeholder, CSP nonce, content protection, video sitemap and JSON-LD. Backoffice and visitor texts in English, Danish, German, Finnish, French, Norwegian, Dutch and Swedish.</Description>
+    <PackageProjectUrl>https://github.com/bluebillywig/umbraco-plugin</PackageProjectUrl>
     <RepositoryUrl>https://github.com/bluebillywig/umbraco-plugin</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>bluebillywig video ovp umbraco umbraco-cms</PackageTags>

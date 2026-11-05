@@ -1,0 +1,103 @@
+name: Publish to NuGet
+# Starts on a published release (when a person or a PAT publishes it) and on workflow_dispatch, which
+# create-release.yaml uses because releases created with GITHUB_TOKEN do not start workflows. If both fire for the
+# same tag the concurrency group runs them one after the other, and --skip-duplicate on the push makes the second harmless.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to publish (e.g. v1.0.0-rc.1)"
+        required: true
+        type: string
+
+concurrency:
+  group: publish-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # Trusted Publishing: nuget.org exchanges the OIDC token for a short-lived API key
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+
+      - name: Version from the release tag
+        id: version
+        env:
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
+        run: |
+          VERSION="${TAG#v}"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z]+(\.[0-9A-Za-z]+)*)?$ ]]; then
+            echo "::error::Release tag '$TAG' is not vMAJOR.MINOR.PATCH or vMAJOR.MINOR.PATCH-suffix"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            10.0.x
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: src/BlueBillywig.Umbraco/Client/package-lock.json
+
+      # The version shown in the Umbraco backoffice comes from umbraco-package.json, which the client build copies
+      # into the package. Set it from the tag so it always equals the NuGet version.
+      - name: Set the backoffice package version
+        working-directory: src/BlueBillywig.Umbraco/Client
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          node -e '
+            const fs = require("fs");
+            const p = "public/umbraco-package.json";
+            const j = JSON.parse(fs.readFileSync(p, "utf8"));
+            j.version = process.env.VERSION;
+            fs.writeFileSync(p, JSON.stringify(j, null, 2) + "\n");
+          '
+
+      # The client must build before dotnet restore/build: its output under wwwroot is a Static Web Asset.
+      - name: Build client
+        working-directory: src/BlueBillywig.Umbraco/Client
+        run: |
+          npm ci
+          npm run build
+
+      - name: Client tests
+        working-directory: src/BlueBillywig.Umbraco/Client
+        run: npm test
+
+      - name: Restore
+        run: dotnet restore BlueBillywig.Umbraco.slnx
+
+      - name: Build
+        run: dotnet build BlueBillywig.Umbraco.slnx --no-restore --configuration Release -p:Version="${{ steps.version.outputs.version }}"
+
+      - name: Test
+        run: dotnet test BlueBillywig.Umbraco.slnx --no-build --configuration Release
+
+      - name: Pack
+        run: dotnet pack src/BlueBillywig.Umbraco --no-build --configuration Release --output artifacts -p:Version="${{ steps.version.outputs.version }}"
+
+      # Requires a Trusted Publishing policy on nuget.org for this repository and this workflow file
+      # (nuget.org > account > Trusted Publishing). No API key secret is stored in GitHub.
+      - name: NuGet login (Trusted Publishing)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push
+        run: dotnet nuget push "artifacts/*.nupkg" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate

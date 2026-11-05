@@ -1,0 +1,99 @@
+name: Create release
+# Run from a release/vX.Y branch. Creates the GitHub release and tag vX.Y.Z (or vX.Y.Z-<suffix> for a
+# pre-release) and then starts publish.yaml for that tag, which pushes the package to nuget.org.
+on:
+  workflow_dispatch:
+    inputs:
+      patch:
+        description: "Patch version override (leave empty to auto-increment from latest)"
+        required: false
+        type: string
+      suffix:
+        description: "Pre-release suffix (e.g. rc.1). Leave empty for a stable release"
+        required: false
+        type: string
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write # to start publish.yaml with gh workflow run
+    steps:
+      - name: Validate branch
+        run: |
+          if [[ ! "$GITHUB_REF_NAME" =~ ^release/v[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::This workflow must be run from a release branch (release/v*.*), got '$GITHUB_REF_NAME'"
+            exit 1
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+
+      - name: Determine version
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PATCH_INPUT: ${{ inputs.patch }}
+          SUFFIX_INPUT: ${{ inputs.suffix }}
+        run: |
+          MAJOR_MINOR="${GITHUB_REF_NAME#release/v}"
+
+          if [[ -n "$PATCH_INPUT" ]]; then
+            if [[ ! "$PATCH_INPUT" =~ ^[0-9]+$ ]]; then
+              echo "::error::Patch must be a number, got '$PATCH_INPUT'"
+              exit 1
+            fi
+            PATCH="$PATCH_INPUT"
+          else
+            # Latest stable patch for this major.minor, plus one. A pre-release belongs to the next stable
+            # patch (1.0.0-rc.1 comes before 1.0.0; once 1.0.0 exists, a new rc is 1.0.1-rc.1)
+            LATEST_TAG=$(gh release list --limit 1000 --json tagName -q '.[].tagName' \
+              | grep -E "^v${MAJOR_MINOR}\.[0-9]+$" \
+              | sort -V \
+              | tail -n 1)
+
+            if [[ -n "$LATEST_TAG" ]]; then
+              PATCH=$(( ${LATEST_TAG##*.} + 1 ))
+            else
+              PATCH=0
+            fi
+          fi
+
+          VERSION="${MAJOR_MINOR}.${PATCH}"
+          if [[ -n "$SUFFIX_INPUT" ]]; then
+            if [[ ! "$SUFFIX_INPUT" =~ ^[0-9A-Za-z]+(\.[0-9A-Za-z]+)*$ ]]; then
+              echo "::error::Invalid pre-release suffix '$SUFFIX_INPUT' (e.g. rc.1)"
+              exit 1
+            fi
+            VERSION="${VERSION}-${SUFFIX_INPUT}"
+            echo "prerelease=--prerelease" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: $VERSION"
+
+      # A release created with GITHUB_TOKEN does not start other workflows (publish.yaml's release trigger), so
+      # publish.yaml is started explicitly below. workflow_dispatch started with GITHUB_TOKEN is allowed.
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+          PRERELEASE: ${{ steps.version.outputs.prerelease }}
+        run: |
+          gh release create "$TAG" \
+            --target "$GITHUB_REF_NAME" \
+            --title "$TAG" \
+            --generate-notes \
+            $PRERELEASE
+
+      - name: Start the publish workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: gh workflow run publish.yaml --ref "$TAG" -f tag="$TAG"
