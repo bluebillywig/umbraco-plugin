@@ -210,7 +210,7 @@ export default {
     cacheCleared: "Välimuisti tyhjennetty.",
     cacheClearFailed: "Välimuistia ei voitu tyhjentää. Tarkista Umbracon loki.",
     cleanupBox: "Poista tallennetut asetukset",
-    cleanupHint: "Vastine referenssilaajennuksen asennuksen poistolle. Umbracossa ei ole paketin asennuksen poiston koukkua, joten paketin poistaminen jättää sen asetukset salaisuuksineen tietokantaan. Suorita tämä ensin niiden tyhjentämiseksi. Se koskee vain tämän paketin kirjoittamia merkintöjä.",
+    cleanupHint: "Umbracossa ei ole paketin asennuksen poiston koukkua, joten paketin poistaminen jättää sen asetukset salaisuuksineen tietokantaan. Suorita tämä ensin niiden tyhjentämiseksi. Se koskee vain tämän paketin kirjoittamia merkintöjä.",
     cleanupHeadline: "Poista kaikki Blue Billywig -asetukset",
     cleanupContent: "Tämä tyhjentää julkaisun, API-avaimet ja salaisuudet, oletusarvot ja kaikki tämän paketin tallentamat videokohtaiset playoutit, joten paketti on sen jälkeen määrittämätön. Muiden pakettien merkintöihin ei kosketa, eikä Blue Billywigistä poisteta mitään. Tee tämä ennen paketin poistamista. Appsettingsissä tai ympäristössä asetetut arvot säilyvät.",
     cleanupConfirm: "Poista asetukset",

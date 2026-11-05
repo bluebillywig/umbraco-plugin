@@ -20,7 +20,7 @@
   "gateNoPermission": "Je account heeft geen toestemming om deze inhoud te bekijken.",
   "gateLogInPrompt": "Log in om deze video te bekijken.",
   "gateLogIn": "Inloggen",
-  "ctaSubscribe": "Aanmelden",
+  "ctaSubscribe": "Abonneren",
   "ctaEmail": "E-mailadres",
   "ctaConsent": "Ik ga ermee akkoord per e-mail benaderd te worden.",
   "ctaPrivacy": "Privacybeleid",
@@ -29,5 +29,5 @@
   "ctaErrEmail": "Voer een geldig e-mailadres in.",
   "ctaErrConsent": "Ga akkoord met de toestemmingsverklaring.",
   "ctaErrSubmit": "Verzenden mislukt — probeer het opnieuw.",
-  "embedProblem": "Videoprobleem: de speler kon niet worden voorbereid op het Content Security Policy van deze site. Zie het logboek."
+  "embedProblem": "Videoprobleem: de speler kon niet worden voorbereid op de Content Security Policy van deze site. Zie het logboek."
 }

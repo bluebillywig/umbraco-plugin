@@ -210,7 +210,7 @@ export default {
     cacheCleared: "Cache ryddet.",
     cacheClearFailed: "Cachen kunne ikke ryddes. Tjek Umbraco-loggen.",
     cleanupBox: "Fjern gemte indstillinger",
-    cleanupHint: "Modstykket til afinstallationen i reference-pluginet. Umbraco har ingen afinstallationshook til en pakke, så hvis du fjerner pakken, bliver dens indstillinger, hemmeligheder inklusive, liggende i databasen. Kør dette først for at tømme dem. Det rører kun de poster, som denne pakke selv har skrevet.",
+    cleanupHint: "Umbraco har ingen afinstallationshook til en pakke, så hvis du fjerner pakken, bliver dens indstillinger, hemmeligheder inklusive, liggende i databasen. Kør dette først for at tømme dem. Det rører kun de poster, som denne pakke selv har skrevet.",
     cleanupHeadline: "Fjern alle Blue Billywig-indstillinger",
     cleanupContent: "Dette tømmer publikationen, API-nøgler og hemmeligheder, standardværdierne og alle playouts pr. video, som denne pakke har gemt, så pakken er ukonfigureret bagefter. Poster fra andre pakker røres ikke, og intet slettes fra Blue Billywig. Gør dette, før du fjerner pakken. Værdier i appsettings eller miljøet bliver stående.",
     cleanupConfirm: "Fjern indstillinger",

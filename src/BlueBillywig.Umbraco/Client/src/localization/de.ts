@@ -87,7 +87,7 @@ export default {
     uploadStorageError: "Die Datei konnte nicht an den Speicher von Blue Billywig gesendet werden. Wenn das häufiger passiert, erlaubt der Speicher möglicherweise die Adresse dieser Website nicht (CORS); bitten Sie den Blue-Billywig-Support, sie freizugeben.",
     uploadDetailsRejected: "Die Upload-Angaben wurden nicht akzeptiert. Prüfen Sie den Status und versuchen Sie es erneut.",
     uploadPrepareFailed: "Der Upload konnte nicht vorbereitet werden. Prüfen Sie die Verbindung zu Blue Billywig und versuchen Sie es erneut.",
-    uploadAbortFailed: "Upload abgebrochen, aber der Platzhalter-Clip {0} konnte nicht entfernt werden. Bitte löschen Sie ihn im Blue-Billywig-OVP.",
+    uploadAbortFailed: "Upload abgebrochen, aber der Platzhalter-Clip {0} konnte nicht entfernt werden. Bitte löschen Sie ihn im OVP von Blue Billywig.",
 
     // Library browser
     searchPlaceholder: "In Titel, Beschreibung oder Tags suchen",
@@ -210,7 +210,7 @@ export default {
     cacheCleared: "Cache geleert.",
     cacheClearFailed: "Der Cache konnte nicht geleert werden. Prüfen Sie das Umbraco-Protokoll.",
     cleanupBox: "Gespeicherte Einstellungen entfernen",
-    cleanupHint: "Das Gegenstück zur Deinstallation des Referenz-Plugins. Umbraco hat keinen Deinstallations-Hook für Pakete; wird das Paket entfernt, bleiben seine Einstellungen samt Geheimnissen in der Datenbank. Führen Sie dies zuerst aus, um sie zu leeren. Es betrifft nur Einträge, die dieses Paket geschrieben hat.",
+    cleanupHint: "Umbraco hat keinen Deinstallations-Hook für Pakete; wird das Paket entfernt, bleiben seine Einstellungen samt Geheimnissen in der Datenbank. Führen Sie dies zuerst aus, um sie zu leeren. Es betrifft nur Einträge, die dieses Paket geschrieben hat.",
     cleanupHeadline: "Alle Blue-Billywig-Einstellungen entfernen",
     cleanupContent: "Dadurch werden Publikation, API-Schlüssel und Geheimnisse, die Standardwerte und alle Playouts pro Video geleert, die dieses Paket gespeichert hat; danach ist das Paket nicht mehr konfiguriert. Einträge anderer Pakete bleiben unberührt, und bei Blue Billywig wird nichts gelöscht. Tun Sie dies, bevor Sie das Paket entfernen. In appsettings oder der Umgebung gesetzte Werte bleiben bestehen.",
     cleanupConfirm: "Einstellungen entfernen",

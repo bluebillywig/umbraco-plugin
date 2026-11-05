@@ -121,7 +121,7 @@ export default {
     deleteVideosHeadline: "Supprimer des vidéos",
     deleteVideosOne: "Supprimer {0} vidéo sélectionnée de Blue Billywig ? Cette action est irréversible.",
     deleteVideosMany: "Supprimer {0} vidéos sélectionnées de Blue Billywig ? Cette action est irréversible.",
-    bulkResult: "{0} réussie(s), {1} échouée(s).",
+    bulkResult: "{0} réussis, {1} échoués.",
     clipN: "Clip {0}",
 
     // Video picker
@@ -210,7 +210,7 @@ export default {
     cacheCleared: "Cache vidé.",
     cacheClearFailed: "Le cache n’a pas pu être vidé. Consultez le journal Umbraco.",
     cleanupBox: "Supprimer les paramètres enregistrés",
-    cleanupHint: "L’équivalent de la désinstallation du plugin de référence. Umbraco n’a pas de hook de désinstallation pour un package : supprimer le package laisse ses paramètres, secrets compris, dans la base de données. Exécutez ceci d’abord pour les vider. Seules les entrées écrites par ce package sont touchées.",
+    cleanupHint: "Umbraco n’a pas de hook de désinstallation pour un package : supprimer le package laisse ses paramètres, secrets compris, dans la base de données. Exécutez ceci d’abord pour les vider. Seules les entrées écrites par ce package sont touchées.",
     cleanupHeadline: "Supprimer tous les paramètres Blue Billywig",
     cleanupContent: "Cela vide la publication, les clés et secrets API, les valeurs par défaut et tous les playouts par vidéo enregistrés par ce package, qui n’est donc plus configuré ensuite. Les entrées d’autres packages ne sont pas touchées et rien n’est supprimé dans Blue Billywig. Faites-le avant de supprimer le package. Les valeurs définies dans appsettings ou l’environnement restent.",
     cleanupConfirm: "Supprimer les paramètres",

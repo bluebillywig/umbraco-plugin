@@ -214,7 +214,7 @@ export default {
     cacheCleared: "Cache cleared.",
     cacheClearFailed: "The cache could not be cleared. Check the Umbraco log.",
     cleanupBox: "Remove stored settings",
-    cleanupHint: "The counterpart of the reference plugin's uninstall. Umbraco has no uninstall hook for a package, so removing the package leaves its settings, secrets included, in the database. Run this first to empty them. It touches only the entries this package wrote.",
+    cleanupHint: "Umbraco has no uninstall hook for a package, so removing the package leaves its settings, secrets included, in the database. Run this first to empty them. It touches only the entries this package wrote.",
     cleanupHeadline: "Remove all Blue Billywig settings",
     cleanupContent: "This empties the publication, API keys and secrets, the defaults and every per-video playout that this package stored, so the package is unconfigured afterwards. Entries of other packages are not touched, and nothing is deleted from Blue Billywig. Do this before removing the package. Values set in appsettings or the environment stay.",
     cleanupConfirm: "Remove settings",
