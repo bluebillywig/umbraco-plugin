@@ -97,7 +97,8 @@ jobs:
         uses: NuGet/login@v1
         id: login
         with:
-          user: ${{ secrets.NUGET_USER }}
+          # The nuget.org account (profile) name that owns the Trusted Publishing policy. A public name, not a key.
+          user: ghultink
 
       - name: Push
         run: dotnet nuget push "artifacts/*.nupkg" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate

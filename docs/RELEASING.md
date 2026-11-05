@@ -22,11 +22,11 @@ The owner does these; automated agents are not allowed to write secrets or chang
 
 On GitHub (repository `bluebillywig/umbraco-plugin`, public at release time):
 
-1. Repository secret **`NUGET_USER`**: the nuget.org account (profile) name that owns the Trusted Publishing policy and the package. It is a name, not a key, and it is the only secret the workflows need. The .NET SAPI SDK package is owned by the nuget.org account `bluebillywig`, but the value for this repository must be confirmed by the owner. Set it once: `gh secret set NUGET_USER --repo bluebillywig/umbraco-plugin`, then type the value when prompted. No NuGet API key is stored anywhere, and no personal access token is needed: the release workflow uses the built-in `GITHUB_TOKEN`.
+1. No repository secret is needed. The nuget.org account name that owns the Trusted Publishing policy (`ghultink`) is written in `publish.yaml` (`user:` of the `NuGet/login` step): it is a public name, not a key, and no NuGet API key is stored anywhere. If the policy is ever moved to another nuget.org account, change that line.
 2. Actions must be allowed to run in the repository, and the default workflow permissions must not forbid the `contents: write` and `actions: write` that `create-release.yaml` asks for itself (organisation policy can restrict this; check once).
 3. Branch protection as for the other repositories (`bb-enable-pr-flow`), if wanted, on `main` and `release/*`. The release branch workflow pushes a new branch with `GITHUB_TOKEN`; check your rules allow it.
 
-On nuget.org (signed in as the account named in `NUGET_USER`, or an organisation that account belongs to):
+On nuget.org (signed in as `ghultink`, or an organisation that account belongs to):
 
 1. **Reserve the package id prefix `BlueBillywig.`** (nuget.org: account > "Manage ID prefixes" / reserved-prefix request), so the id `BlueBillywig.Umbraco` is verifiably ours. nuget.org reviews the request; before the first push is better.
 2. **Trusted Publishing policy** (nuget.org: account > Trusted Publishing): repository owner `bluebillywig`, repository `umbraco-plugin`, workflow file **`publish.yaml`** (no environment). For a package id that does not exist yet, create the policy on the account so the first push can create the package. The workflow gets a short-lived API key by OIDC (`NuGet/login@v1`).
@@ -141,5 +141,5 @@ Not done (do not release before these are decided or done):
 - [ ] Product-name check: no user-visible string, rendered class name, CSS class, log text, doc or package metadata contains the product name of the reference plugin. Search the repository, the built bundle and the rendered HTML of the test site, not only the source, with the name filled in by the person who knows it; do not put the name in this file.
 - [ ] `docs/INSTALL.md`, `docs/USER-GUIDE.md` and `docs/ARCHITECTURE.md` match the code of this release.
 - [ ] `npm audit` reviewed (development dependencies only, not bundled, when last seen on 2026-11-04).
-- [ ] One-time setup above done (`NUGET_USER`, Trusted Publishing policy, `BlueBillywig.` prefix, repository made public).
+- [ ] One-time setup above done (Trusted Publishing policy, `BlueBillywig.` prefix, repository made public).
 - [ ] The owner has approved publishing to NuGet, and separately approved a Marketplace listing, if wanted.
