@@ -17,10 +17,6 @@ Normally done once by a site administrator.
 2. Under **Blue Billywig connection** enter your **Publication** (the first part of `publication.bbvms.com`), **API ID** and **API secret**. The **API base URL** below it is read-only: it is set by your developer in the site's configuration, and normally stays empty (the address is then built from the publication).
 3. Click **Save**, then **Test connection**. A message such as "Connected to ..." means it works. "SAPI request failed (401)" means the ID or secret is wrong.
 
-![The Blue Billywig settings dashboard in the Settings section: connection, defaults and content protection boxes](images/settings.png)
-
-*The Blue Billywig dashboard in Settings. Saved secrets show as "Saved. Leave empty to keep".*
-
 The API secret is never shown again after saving. Leave the field empty to keep the saved one. If a field is greyed out, your developer set it in the site's configuration; ask them to change it. Until credentials are set, the library views show a banner "the package is installed but not configured yet" with a link to the settings.
 
 The other settings: **Default playout** (the player layout used when a video doesn't choose its own), **Default embed type** (`javascript` is the usual choice), **Videos per page**, the **Consent message** (the text above the **Load video** button; empty uses the built-in text, up to 500 characters) and the toggles **Custom fields** (show your publication's custom fields in the editor) and **Call to action editor**. **Disconnect** removes the stored credentials and **Clear cache** empties the package's cache.
@@ -87,15 +83,7 @@ Open the **Blue Billywig** section (top bar). Tabs: **Videos**, **Livestreams**,
 
 - **Livestreams** and **Playlists** list them. A playlist has a **Copy** button for its embed code; search playlists by title.
 
-![The Playlists tab: a table of playlists with title, id, status, created date and an embed code with a Copy button](images/library-playlists.png)
-
-*The Playlists tab: each playlist shows its embed code with a Copy button.*
-
 - **Platform.** Links to your publication in the OVP (library, playouts, channels, analytics) and to documentation and support.
-
-![The Platform tab with the publication name and host, quick links to the OVP and a documentation and support list](images/library-platform.png)
-
-*The Platform tab: the connected publication and quick links.*
 
 If Blue Billywig cannot be reached, the list shows an error with **Try again**. An error is not the same as "no videos". Note: on the development platform, recently uploaded clips or the date filter sometimes lag behind, because the platform answers from servers that briefly disagree. Wait a minute and reload.
 
