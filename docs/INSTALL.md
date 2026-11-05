@@ -1,6 +1,6 @@
 # Installing Blue Billywig in an Umbraco site
 
-For the person who owns the Umbraco site. Editors: see [USER-GUIDE.md](USER-GUIDE.md). This describes version `1.0.0-rc.1`, a **pre-release** planned for nuget.org (not published yet; the repository will be made public at release time; licence MIT). Until it is on nuget.org the install route below is a local package file. What works and what is proven is in [PARITY.md](PARITY.md); read it before you promise anything to a customer. Steps marked "not verified" were read from the code and not run on a separate site. The test site in this repository (`src/UmbracoSite`) is the only site the package has been run in.
+For the person who owns the Umbraco site. Editors: see [USER-GUIDE.md](USER-GUIDE.md). This describes version `1.0.0-rc.1`, a **pre-release** on nuget.org (install with `--prerelease`; licence MIT). The local package file route below is for testing a build of your own. What works and what is proven is in [PARITY.md](PARITY.md); read it before you promise anything to a customer. Steps marked "not verified" were read from the code and not run on a separate site. The test site in this repository (`src/UmbracoSite`) is the only site the package has been run in.
 
 ## Requirements
 

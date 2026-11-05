@@ -30,7 +30,7 @@ Where the Node requirement comes from, read from the installed packages:
 
 The target framework is `net10.0` (`src/BlueBillywig.Umbraco/BlueBillywig.Umbraco.csproj`). There is no `global.json`, so any installed SDK 10 is used.
 
-Network access is needed on the first build: NuGet restore from nuget.org (including `BlueBillywig.Sapi` 1.0.0) and `npm ci` from the npm registry. Until the repository is made public at release time it is private, so authenticate first (`gh auth login`).
+Network access is needed on the first build: NuGet restore from nuget.org (including `BlueBillywig.Sapi` 1.0.0) and `npm ci` from the npm registry.
 
 ### macOS
 
