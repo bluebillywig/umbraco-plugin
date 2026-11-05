@@ -1,0 +1,3 @@
+@model BlueBillywigVideo
+@* Renders one Blue Billywig Video value. Usage: @await Html.PartialAsync("BlueBillywig/Video", Model.Value<BlueBillywigVideo>("video")) *@
+@await Component.InvokeAsync("BlueBillywigVideo", new { video = Model })

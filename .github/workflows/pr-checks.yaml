@@ -1,0 +1,45 @@
+name: Pull request checks
+on:
+  pull_request:
+    types: [assigned, opened, synchronize, reopened]
+
+jobs:
+  pr_checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            10.0.x
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: src/BlueBillywig.Umbraco/Client/package-lock.json
+
+      # The client must build before dotnet restore/build: its output under wwwroot is a Static Web Asset,
+      # discovered when MSBuild evaluates the project.
+      - name: Build client
+        working-directory: src/BlueBillywig.Umbraco/Client
+        run: |
+          npm ci
+          npm run build
+
+      - name: Client tests
+        working-directory: src/BlueBillywig.Umbraco/Client
+        run: npm test
+
+      - name: Restore
+        run: dotnet restore BlueBillywig.Umbraco.slnx
+
+      - name: Build
+        run: dotnet build BlueBillywig.Umbraco.slnx --no-restore --configuration Release
+
+      - name: Test
+        run: dotnet test BlueBillywig.Umbraco.slnx --no-build --configuration Release

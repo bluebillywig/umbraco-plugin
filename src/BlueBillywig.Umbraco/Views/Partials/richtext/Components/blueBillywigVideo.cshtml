@@ -1,0 +1,13 @@
+@model RichTextBlockItem
+@*
+    A block inside rich text. The converted rich text is cached across requests, so this leaves a reference instead
+    of the embed: the package turns it into markup when the page is written, with consent and the nonce of that request.
+    Other aliases: copy this partial and use their alias as the file name.
+*@
+@foreach (IPublishedProperty property in Model.Content.Properties.Where(p => p.PropertyType.EditorAlias == BlueBillywig.Umbraco.Constants.VideoEditorAlias))
+{
+    if (property.GetValue() is BlueBillywig.Umbraco.Embedding.BlueBillywigVideo video)
+    {
+        <div class="bb-rte-video-ref" data-bb-video="@video.ToJson()"></div>
+    }
+}

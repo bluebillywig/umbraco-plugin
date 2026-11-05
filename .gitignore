@@ -1,0 +1,11 @@
+secrets/
+bin/
+obj/
+umbraco/Data/
+umbraco/Logs/
+*.user
+appsettings.Local.json
+.vs/
+src/BlueBillywig.Umbraco/Client/node_modules/
+src/BlueBillywig.Umbraco/wwwroot/App_Plugins/
+artifacts/

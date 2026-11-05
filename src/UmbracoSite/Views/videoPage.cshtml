@@ -1,0 +1,13 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    Layout = null;
+    BlueBillywig.Umbraco.Embedding.BlueBillywigVideo? video = Model.Value<BlueBillywig.Umbraco.Embedding.BlueBillywigVideo>("video");
+}
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>@Model.Name</title><bb-assets /></head>
+<body>
+<h1>@Model.Name</h1>
+<section id="property"><bb-video video="video" /></section>
+<section id="blocks">@await Html.GetBlockListHtmlAsync(Model.Value<Umbraco.Cms.Core.Models.Blocks.BlockListModel>("blocks"))</section>
+<section id="body">@Model.Value("body")</section>
+</body></html>

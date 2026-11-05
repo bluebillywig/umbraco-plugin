@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackageId>BlueBillywig.Umbraco</PackageId>
+    <Product>BlueBillywig.Umbraco</Product>
+    <Title>BlueBillywig.Umbraco</Title>
+    <Version>0.1.0</Version>
+    <Authors>Blue Billywig</Authors>
+    <Description>Blue Billywig online video for Umbraco 17: a backoffice section to browse, upload and edit videos, a video picker property editor and rich text button, settings and analytics dashboards, a call to action editor, and server-rendered embeds with lazy loading, consent placeholder, CSP nonce, content protection, video sitemap and JSON-LD. Backoffice and visitor texts in English, Danish, German, Finnish, French, Norwegian, Dutch and Swedish.</Description>
+    <RepositoryUrl>https://github.com/bluebillywig/umbraco-plugin</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>bluebillywig video ovp umbraco umbraco-cms</PackageTags>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <StaticWebAssetBasePath>/</StaticWebAssetBasePath>
+    <InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.AspNetCore.OpenApi.Generated</InterceptorsNamespaces>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="BlueBillywig.Sapi" />
+    <PackageReference Include="Umbraco.Cms.Api.Common" VersionOverride="[17.8.0,18.0.0)" />
+    <PackageReference Include="Umbraco.Cms.Api.Management" VersionOverride="[17.8.0,18.0.0)" />
+    <PackageReference Include="Umbraco.Cms.Web.Common" VersionOverride="[17.8.0,18.0.0)" />
+    <PackageReference Include="Umbraco.Cms.Web.Website" VersionOverride="[17.8.0,18.0.0)" />
+    <!-- Direct reference on purpose: the composer uses SwaggerGenOptions and OpenApiInfo, and a version that
+         differs from the host's would stop the custom OpenAPI document from appearing (Umbraco's template note). -->
+    <PackageReference Include="Swashbuckle.AspNetCore" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- The client folder is source, not content: only its build output under wwwroot is packaged. -->
+    <Content Remove="Client\**" />
+    <None Include="Client\public\umbraco-package.json" Pack="false" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Source maps are for debugging the backoffice during development (Debug builds still serve them). The package does
+         not ship them: they hold the TypeScript sources, and a site owner has no use for them. The Release build is what packs. -->
+    <Content Remove="wwwroot\**\*.map" Condition="'$(Configuration)' == 'Release'" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- The visitor-facing texts, one JSON file per language (Localization/VisitorText.cs). Embedded, so no file lookup at runtime. -->
+    <Content Remove="Localization\Visitor\*.json" />
+    <None Remove="Localization\Visitor\*.json" />
+    <EmbeddedResource Include="Localization\Visitor\*.json" LogicalName="BlueBillywig.Visitor.%(Filename)%(Extension)" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="BlueBillywig.Umbraco.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,115 @@
+/* Blue Billywig - call to action form overlay (frontend). */
+.bb-cta-form { pointer-events: auto; }
+
+/* Switched to a vertical stack with consent row so labels fit. The old
+ * horizontal inline layout didn't leave room for the required consent
+ * checkbox (GDPR Art. 7). */
+.bb-cta-form__form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border-radius: 4px;
+}
+
+.bb-cta-form__heading {
+    margin: 0 0 4px;
+    font: inherit;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.bb-cta-form__email-label {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.bb-cta-form__email {
+    width: 100%;
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.95);
+    color: #111;
+    font: inherit;
+    box-sizing: border-box;
+}
+
+.bb-cta-form__email:focus-visible {
+    outline: 3px solid #649bd2;
+    outline-offset: 2px;
+}
+
+.bb-cta-form__consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+    line-height: 1.4;
+    cursor: pointer;
+}
+
+.bb-cta-form__consent-checkbox {
+    margin-top: 2px;
+    width: 16px;
+    height: 16px;
+    flex: 0 0 auto;
+}
+
+.bb-cta-form__privacy-link {
+    color: inherit;
+    text-decoration: underline;
+}
+
+.bb-cta-form__submit {
+    align-self: flex-start;
+    height: 36px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 4px;
+    background: #fff;
+    color: #002837;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.bb-cta-form__submit:disabled { opacity: 0.6; cursor: progress; }
+.bb-cta-form__submit:focus-visible {
+    outline: 3px solid #649bd2;
+    outline-offset: 2px;
+}
+
+.bb-cta-form__thanks {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 12px;
+    font-weight: 600;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 4px;
+}
+
+/* Error message sits on a semi-transparent dark overlay over the CTA form's
+ * own background — the only surface it is ever rendered over. White text
+ * with a sharp dark shadow clears 4.5:1 against any combination of the
+ * ~60%-dark overlay and an arbitrary paused-frame underneath. */
+.bb-cta-form__error-host {
+    min-height: 16px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    background-color: #b52d2a; /* 5.6:1 white-on-red */
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+.bb-cta-form__error-host:empty { display: none; }

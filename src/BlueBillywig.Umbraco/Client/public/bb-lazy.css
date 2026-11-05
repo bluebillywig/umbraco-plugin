@@ -1,0 +1,172 @@
+/**
+ * Blue Billywig lazy-load placeholder styles.
+ *
+ * The placeholder must occupy the exact same space as the eventual
+ * embed to avoid Cumulative Layout Shift (CLS). The default container
+ * is 16:9 (matching the responsive wrapper the server emits). Channel
+ * placeholders use --bb-lazy-height for a fixed height instead.
+ */
+
+/**
+ * Make the player iframe fill its responsive box.
+ *
+ * The SAPI iframe embed uses `inheritDimensions=true`, so the server
+ * returns a BARE <iframe width="720" height="405"> with no inline
+ * sizing — the player renders at whatever dimensions the iframe is
+ * given. Every render path (block, shortcode, oEmbed; lazy and eager)
+ * wraps that iframe in an absolutely-positioned fill-the-box <div>, but
+ * nothing sized the iframe itself. A theme's generic `iframe{max-width
+ * :100%}` clamps the WIDTH to the column, but the HEIGHT stayed at the
+ * hard-coded 405px — so in any box whose height != 405px (i.e. any
+ * column not ~720px wide: narrow sidebars, wide heroes) the iframe
+ * overflowed/undersized its box and the player, inheriting those
+ * dimensions, rendered shifted/clipped. It only lined up at ~720px wide
+ * because 720 * 9/16 = 405, exactly the hard-coded height — which is why
+ * it slipped through review.
+ */
+.bb-embed-responsive iframe {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	border: 0;
+}
+
+.bb-lazy-embed {
+	position: relative;
+	display: block;
+	width: 100%;
+	cursor: pointer;
+	background-color: #000;
+	background-size: cover;
+	background-position: center center;
+	background-repeat: no-repeat;
+	overflow: hidden;
+}
+
+.bb-lazy-embed.bb-lazy-ratio-16-9 {
+	padding-bottom: 56.25%;
+	height: 0;
+}
+
+.bb-lazy-embed.bb-lazy-fixed-height {
+	height: var( --bb-lazy-height, 600px );
+}
+
+.bb-lazy-embed::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: linear-gradient( to bottom, rgba( 0, 0, 0, 0 ) 60%, rgba( 0, 0, 0, 0.35 ) 100% );
+	pointer-events: none;
+}
+
+.bb-lazy-embed::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 72px;
+	height: 72px;
+	margin: -36px 0 0 -36px;
+	border-radius: 50%;
+	background-color: rgba( 255, 255, 255, 0.92 );
+	background-image: url( "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23002837' d='M8 5v14l11-7z'/></svg>" );
+	background-repeat: no-repeat;
+	background-position: 54% center;
+	background-size: 42px 42px;
+	box-shadow: 0 2px 12px rgba( 0, 0, 0, 0.35 );
+	transition: transform 0.15s ease-out, background-color 0.15s ease-out;
+	pointer-events: none;
+}
+
+.bb-lazy-embed:hover::after,
+.bb-lazy-embed:focus-visible::after {
+	transform: scale( 1.1 );
+	background-color: #fff;
+}
+
+.bb-lazy-embed:focus-visible {
+	outline: 3px solid #649bd2;
+	outline-offset: 2px;
+}
+
+/* Consent placeholder — shown when the consent provider says no. Keeps the 16:9 / fixed-height box so there's no layout
+ * shift on consent grant; the visitor refreshes (or the CMP re-renders)
+ * once they accept.
+ */
+.bb-consent-placeholder {
+	position: relative;
+	display: block;
+	width: 100%;
+	background-color: #f3f5f5;
+	border: 1px solid #dde3e8;
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.bb-consent-placeholder.bb-lazy-ratio-16-9 {
+	padding-bottom: 56.25%;
+	height: 0;
+}
+
+.bb-consent-placeholder.bb-lazy-fixed-height {
+	height: var( --bb-lazy-height, 600px );
+}
+
+.bb-consent-placeholder__inner {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	padding: 16px;
+	text-align: center;
+}
+
+.bb-consent-placeholder__msg {
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.5;
+	color: #2c3338; /* 12.6:1 on #f3f5f5 */
+	max-width: 480px;
+}
+
+.bb-consent-placeholder__btn {
+	display: inline-block;
+	padding: 8px 20px;
+	background-color: #3578bb;
+	color: #fff;
+	border: 0;
+	border-radius: 4px;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 120ms ease;
+}
+
+.bb-consent-placeholder__btn:hover,
+.bb-consent-placeholder__btn:focus-visible {
+	background-color: #002837;
+}
+
+.bb-consent-placeholder__btn:focus-visible {
+	outline: 3px solid #649bd2;
+	outline-offset: 2px;
+}
+
+/* The visible note the renderer adds, for signed-in backoffice users or when ShowEmbedProblems is on, when it could not apply
+   the page's CSP nonce. No inline style on the element: a strict policy may block it. */
+.bb-embed-problem {
+	margin: 8px 0;
+	padding: 12px 16px;
+	border: 1px solid #dde3e8;
+	border-radius: 4px;
+	background: #f3f5f5;
+	color: #5a6872;
+	font-size: 14px;
+	text-align: center;
+}

@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BlueBillywig.Umbraco/BlueBillywig.Umbraco.csproj" />
+    <Project Path="src/UmbracoSite/UmbracoSite.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BlueBillywig.Umbraco.Tests/BlueBillywig.Umbraco.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,9 @@
+@model IPublishedElement
+@*
+    Renders every Blue Billywig Video property of a block's element. Call it from your block's own partial:
+    @await Html.PartialAsync("BlueBillywig/Block", Model.Content)
+*@
+@foreach (IPublishedProperty property in Model.Properties.Where(p => p.PropertyType.EditorAlias == BlueBillywig.Umbraco.Constants.VideoEditorAlias))
+{
+    @await Component.InvokeAsync("BlueBillywigVideo", new { video = property.GetValue() })
+}
