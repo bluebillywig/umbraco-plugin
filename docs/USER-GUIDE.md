@@ -13,6 +13,10 @@ What you can do depends on your user group:
 
 Normally done once by a site administrator.
 
+![The Blue Billywig settings dashboard in the Settings section: connection, defaults and content protection boxes (the host in the API base URL field is replaced by a placeholder in this image)](images/settings.png)
+
+*The Blue Billywig dashboard in Settings. Saved secrets show as "Saved. Leave empty to keep".*
+
 1. Go to **Settings** and open the **Blue Billywig** dashboard.
 2. Under **Blue Billywig connection** enter your **Publication** (the first part of `publication.bbvms.com`), **API ID** and **API secret**. The **API base URL** below it is read-only: it is set by your developer in the site's configuration, and normally stays empty (the address is then built from the publication).
 3. Click **Save**, then **Test connection**. A message such as "Connected to ..." means it works. "SAPI request failed (401)" means the ID or secret is wrong.

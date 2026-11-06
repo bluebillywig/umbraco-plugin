@@ -105,6 +105,10 @@ For production, put credentials in configuration so they are not in the database
 
 Use environment variables or your secret store for the secrets, for example `BlueBillywig__ApiSecret` and `BlueBillywig__DeleteUserGroups__0`. A value set in configuration wins over one saved in the dashboard; the dashboard then shows that field as read-only. The other settings below (playout, embed type, page size, toggles, content protection options) are saved from the dashboard only.
 
+![The Blue Billywig settings dashboard in the Settings section: connection, defaults and content protection boxes (the host in the API base URL field is replaced by a placeholder in this image)](images/settings.png)
+
+*The settings dashboard: enter the connection here, then Save and Test connection.*
+
 ## Settings dashboard
 
 **Settings > Blue Billywig.**
