@@ -7,7 +7,7 @@ Source of truth for "does the Umbraco package do what the reference plugin (Blue
 A row is **Proven** only when all of these hold:
 
 1. The Umbraco behaviour exists and is named in the row.
-2. **Evidence** points at something that ran: a passing test, or a check observed in the running site against `bb.dev.bbovp.eu`, with the date. "The code looks right" is not evidence.
+2. **Evidence** points at something that ran: a passing test, or a check observed in the running site against the development publication, with the date. "The code looks right" is not evidence.
 3. Editor-facing rows were used through the backoffice UI, not only through the API.
 4. Behaviour that writes to SAPI was checked by reading the result back from SAPI, on clips this project created.
 
@@ -46,7 +46,7 @@ The goal is reached when no row is Open, Partial or Blocked, and an independent 
 |---|---|---|---|---|
 | E1 | Video block: clip, playout, transcript, chapters, lazy load | Property editor, block partial | Partial | 2026-11-04 agent-observed: property and block rendered, transcript markup present, real player script loaded for clip 11224. Chapters, lazy-load and per-clip options not observed 2026-11-05 browser round on HEAD 4e8fb98: still unobserved, no transcript or chapters UI in the page DOM. |
 | E2 | Channel block: channel, height, lazy load | Property editor, block partial | Partial | 2026-11-04 agent-observed: a channel picked inside a Block List block and published. Rendered channel player not confirmed |
-| E3 | Shorts block: shorts, height, fullscreen | Property editor, block partial | Proven | 2026-11-05 browser round, agent-observed on the front end. Shorts id 1 rendered as `iframe.bb-block-shorts` (src bb.dev.bbovp.eu/sh/1.html, 400 x 700, allow autoplay and fullscreen, lazy) and the real shorts player showed the clip frame with its controls. `/sh/1.js` and `/sh/1.html` now answer 200 (they were 404). Playback itself was not clicked |
+| E3 | Shorts block: shorts, height, fullscreen | Property editor, block partial | Proven | 2026-11-05 browser round, agent-observed on the front end. Shorts id 1 rendered as `iframe.bb-block-shorts` (src the development publication's `/sh/1.html`, 400 x 700, allow autoplay and fullscreen, lazy) and the real shorts player showed the clip frame with its controls. `/sh/1.js` and `/sh/1.html` now answer 200 (they were 404). Playback itself was not clicked |
 | E4 | Classic editor media button and modal (`get_post_modal_template`) | RTE insert | Proven | 2026-11-04 agent-observed in the backoffice UI on bb.dev. Rich text toolbar button used through the UI and the frontend rendered the embed. The button was added to the data type by setting the toolbar value and pressing Save, because drag and drop failed |
 | E5 | Media Library "Blue Billywig" tab | Picker modal | Proven | 2026-11-04 agent-observed on bb.dev. Picker modal browses the library and sets the property |
 | E6 | `[blue-billywig-embed]` shortcode | ViewComponent or TagHelper | Partial | The package has a view component, a tag helper and block partials; the unit tests (now several hundred) cover them. Not separately observed in the browser |

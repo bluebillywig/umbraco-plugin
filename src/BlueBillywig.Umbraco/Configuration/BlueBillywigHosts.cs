@@ -4,7 +4,7 @@ namespace BlueBillywig.Umbraco.Configuration;
 /// Where the SAPI origin may point. The read-write API token is sent to this origin with every call, public pages load
 /// player scripts from it and gate tokens are appended to its URLs, so it is never taken from a request body: it comes from
 /// the site owner's configuration (<c>BlueBillywig:BaseUrl</c>) and even then only on a Blue Billywig domain. A development
-/// OVP such as <c>bb.dev.bbovp.eu</c> is under <c>bbovp.eu</c>.
+/// OVP such as <c>example.dev.bbovp.eu</c> is under <c>bbovp.eu</c>.
 /// </summary>
 internal static class BlueBillywigHosts
 {

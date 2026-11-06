@@ -86,7 +86,7 @@ Environment variables work in any build configuration, with a double underscore 
 
 ### The development publication
 
-Develop and test only against the development publication on the dev OVP (`bb.dev.bbovp.eu`, as used in [PARITY.md](PARITY.md)). Never point a development site, a test or a script at a customer publication, and never write to a publication you don't own for this project. Anything that writes to SAPI must be checked on clips this project created. See "Proven" in PARITY.md.
+Develop and test only against the development publication on the dev OVP (as used in [PARITY.md](PARITY.md)). Never point a development site, a test or a script at a customer publication, and never write to a publication you don't own for this project. Anything that writes to SAPI must be checked on clips this project created. See "Proven" in PARITY.md.
 
 ## Watch mode for the client
 
@@ -243,7 +243,7 @@ xUnit; the project is `tests/BlueBillywig.Umbraco.Tests/`. No Docker, no network
 
 ## The development player and the development CDN: what could not be proven there
 
-The development publication on the dev OVP (`bb.dev.bbovp.eu`) was used for everything in [PARITY.md](PARITY.md). These properties of it limit what that evidence shows:
+The development publication on the dev OVP was used for everything in [PARITY.md](PARITY.md). These properties of it limit what that evidence shows:
 
 - **The dev player did not load.** Its player script answered 404: the dev publication's player setting points at retired media hosts. So whether the real player renders a call to action's form class into the page (C1, C4, C6), whether chapters work against the real player object (E16, tested against a simulated player), the shorts player (E3) and playback of protected clips (G1) were not observed. Rows that depend on these say so.
 - **The dev CDN caches the clip script's redirect for 90 seconds without keying on the query string.** A first visitor's token was served to an anonymous request (G6). Production's CDN configuration varies on `jwt`. Do not read a leak there as a package bug, and do not test the gate through that CDN without that in mind.
