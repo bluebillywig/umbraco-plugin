@@ -23,7 +23,7 @@ import {
   type SettingsRequest,
   type SettingsResponse,
 } from "../api/index.js";
-import { saveError } from "../library/errors.js";
+import { defaultApiAddress, errorText, saveError } from "../library/errors.js";
 import type { Term } from "../localization/terms.js";
 
 const EMBED_TYPES = ["javascript", "iframe", "oembed", "url", "amp"];
@@ -54,7 +54,7 @@ export class BbSettingsDashboardElement extends UmbElementMixin(LitElement) {
 
   override async connectedCallback() {
     super.connectedCallback();
-    const { data, error } = await tryExecute(this, getSettings());
+    const { data, error } = await tryExecute(this, getSettings(), { disableNotifications: true });
     if (error || !data) {
       this._error = errorText(error) ?? this.#t("bluebillywig_settingsLoadFailed");
       return;
@@ -148,12 +148,13 @@ export class BbSettingsDashboardElement extends UmbElementMixin(LitElement) {
           </p>`
         : nothing}
       <umb-property-layout label=${this.#t("bluebillywig_gateEnable")}>
-        <uui-toggle slot="editor" id="bb-gate-enabled" .checked=${g.enabled} @change=${(e: Event) => this.#setGate("enabled", (e.target as HTMLInputElement).checked)}></uui-toggle>
+        <uui-toggle slot="editor" id="bb-gate-enabled" label=${this.#t("bluebillywig_gateEnable")} .checked=${g.enabled} @change=${(e: Event) => this.#setGate("enabled", (e.target as HTMLInputElement).checked)}></uui-toggle>
       </umb-property-layout>
       <umb-property-layout label=${this.#t("bluebillywig_gateSharedSecret")} description=${g.sharedSecretPinned ? "Set in configuration (BlueBillywig:GateSharedSecret); it cannot be changed here." : this.#t("bluebillywig_gateSharedSecretHint")}>
         <uui-input
           slot="editor"
           id="bb-gate-secret"
+          label=${this.#t("bluebillywig_gateSharedSecret")}
           type="password"
           autocomplete="off"
           ?readonly=${g.sharedSecretPinned}
@@ -168,6 +169,7 @@ export class BbSettingsDashboardElement extends UmbElementMixin(LitElement) {
         <uui-input
           slot="editor"
           id="bb-gate-expiry"
+          label=${this.#t("bluebillywig_gateLifetime")}
           type="number"
           min="300"
           max="7200"
@@ -184,10 +186,10 @@ export class BbSettingsDashboardElement extends UmbElementMixin(LitElement) {
         </div>
       </umb-property-layout>
       <umb-property-layout label=${this.#t("bluebillywig_gateLoginUrl")} description="Where the gate message sends visitors who are not signed in. {returnUrl} is replaced by the current page.">
-        <uui-input slot="editor" id="bb-gate-login" placeholder="/login?returnUrl={returnUrl}" .value=${g.loginUrl ?? ""} @input=${(e: Event) => this.#setGate("loginUrl", (e.target as HTMLInputElement).value)}></uui-input>
+        <uui-input slot="editor" id="bb-gate-login" label=${this.#t("bluebillywig_gateLoginUrl")} placeholder="/login?returnUrl={returnUrl}" .value=${g.loginUrl ?? ""} @input=${(e: Event) => this.#setGate("loginUrl", (e.target as HTMLInputElement).value)}></uui-input>
       </umb-property-layout>
       <umb-property-layout label=${this.#t("bluebillywig_gateMessageLabel")} description="Plain text shown instead of a protected video. Empty: the default message.">
-        <uui-textarea slot="editor" id="bb-gate-message" .value=${g.message ?? ""} @input=${(e: Event) => this.#setGate("message", (e.target as HTMLTextAreaElement).value)}></uui-textarea>
+        <uui-textarea slot="editor" id="bb-gate-message" label=${this.#t("bluebillywig_gateMessageLabel")} .value=${g.message ?? ""} @input=${(e: Event) => this.#setGate("message", (e.target as HTMLTextAreaElement).value)}></uui-textarea>
       </umb-property-layout>
       <umb-property-layout label=${this.#t("bluebillywig_gatePolicies")} description=${this._policyError ?? "For reference: assign a policy to a clip in the library's edit drawer."}>
         <div slot="editor" id="bb-gate-policies">
@@ -211,7 +213,7 @@ export class BbSettingsDashboardElement extends UmbElementMixin(LitElement) {
       this._playouts = [];
       return;
     }
-    const { data, error } = await tryExecute(this, getSettingsPlayouts());
+    const { data, error } = await tryExecute(this, getSettingsPlayouts(), { disableNotifications: true });
     if (error || !data) {
       this._playouts = [];
       this._playoutError = this.#t("bluebillywig_playoutsLoadFailed");
@@ -233,6 +235,7 @@ export class BbSettingsDashboardElement extends UmbElementMixin(LitElement) {
     return html`<umb-property-layout .label=${label}>
       <uui-input
         slot="editor"
+        label=${label}
         type=${opts.type ?? "text"}
         .value=${value === undefined || value === null ? "" : String(value)}
         placeholder=${opts.placeholder ?? ""}
@@ -253,8 +256,10 @@ export class BbSettingsDashboardElement extends UmbElementMixin(LitElement) {
     const s = this._settings;
     const rejected = s?.baseUrlRejected === true;
     const description = this.#t(rejected ? "bluebillywig_baseUrlRejected" : "bluebillywig_baseUrlHelp");
+    // The default address only once the publication is a valid one; while it is empty or being typed wrongly there is nothing to preview.
+    const preview = defaultApiAddress(s?.publication);
     return html`<umb-property-layout label=${this.#t("bluebillywig_apiBaseUrl")} description=${description}>
-      <uui-input slot="editor" id="bb-settings-base-url" type="text" readonly .value=${s?.baseUrl ?? ""} placeholder=${s?.publication ? `https://${s.publication}.bbvms.com` : ""}></uui-input>
+      <uui-input slot="editor" id="bb-settings-base-url" label=${this.#t("bluebillywig_apiBaseUrl")} type="text" readonly .value=${s?.baseUrl ?? ""} placeholder=${preview}></uui-input>
     </umb-property-layout>`;
   }
 
@@ -263,7 +268,7 @@ export class BbSettingsDashboardElement extends UmbElementMixin(LitElement) {
     this._busy = true;
     this._message = this._error = undefined;
     const body: SettingsRequest = { ...this._settings, clearApiSecret: false, clearReadOnlyApiSecret: false };
-    const { data, error } = await tryExecute(this, putSettings({ body }));
+    const { data, error } = await tryExecute(this, putSettings({ body }), { disableNotifications: true });
     if (error || !data) {
       this._error = errorText(error) ?? this.#t("bluebillywig_settingsSaveFailed");
     } else {
@@ -294,7 +299,7 @@ export class BbSettingsDashboardElement extends UmbElementMixin(LitElement) {
     if (!(await this.#confirm(this.#t("bluebillywig_clearCacheHeadline"), this.#t("bluebillywig_clearCacheContent"), this.#t("bluebillywig_clearCache"), "warning"))) return;
     this._busy = true;
     this._message = this._error = undefined;
-    const { data, error } = await tryExecute(this, postSettingsClearCache({ body: { confirm: true } }));
+    const { data, error } = await tryExecute(this, postSettingsClearCache({ body: { confirm: true } }), { disableNotifications: true });
     if (error) this._error = saveError(error, "cache clearing", this.#t);
     else if ((data as { ok?: boolean } | undefined)?.ok === false) this._error = this.#t("bluebillywig_cacheClearFailed");
     else this._message = this.#t("bluebillywig_cacheCleared");
@@ -317,7 +322,7 @@ export class BbSettingsDashboardElement extends UmbElementMixin(LitElement) {
       return;
     this._busy = true;
     this._message = this._error = undefined;
-    const { data, error } = await tryExecute(this, postSettingsCleanup({ body: { confirm: true } }));
+    const { data, error } = await tryExecute(this, postSettingsCleanup({ body: { confirm: true } }), { disableNotifications: true });
     if (error || !data) {
       this._error = saveError(error, "cleanup", this.#t);
     } else {
@@ -338,7 +343,7 @@ export class BbSettingsDashboardElement extends UmbElementMixin(LitElement) {
     this._busy = true;
     this._message = this._error = undefined;
     const { publication, apiId, apiSecret } = this._settings;
-    const { data, error } = await tryExecute(this, postSettingsTestConnection({ body: { publication, apiId, apiSecret } }));
+    const { data, error } = await tryExecute(this, postSettingsTestConnection({ body: { publication, apiId, apiSecret } }), { disableNotifications: true });
     if (error || !data) this._error = errorText(error) ?? this.#t("bluebillywig_testFailedToRun");
     else if (data.ok) this._message = this.#t("bluebillywig_connectedTo", data.publication ?? "Blue Billywig");
     else this._error = data.error ?? this.#t("bluebillywig_connectionFailed");
@@ -411,12 +416,13 @@ export class BbSettingsDashboardElement extends UmbElementMixin(LitElement) {
         <umb-property-layout label=${this.#t("bluebillywig_defaultEmbedType")}>
           <uui-select
             slot="editor"
+            label=${this.#t("bluebillywig_defaultEmbedType")}
             .options=${EMBED_TYPES.map((v) => ({ name: v, value: v, selected: v === s.embed }))}
             @change=${(e: Event) => this.#set("embed", (e.target as HTMLSelectElement).value)}></uui-select>
         </umb-property-layout>
         ${this.#text(this.#t("bluebillywig_videosPerPage"), "pageCount", undefined, { type: "number" })}
         <umb-property-layout label=${this.#t("bluebillywig_customFields")}>
-          <uui-toggle slot="editor" .checked=${s.enableCustomFields} @change=${(e: Event) => this.#set("enableCustomFields", (e.target as HTMLInputElement).checked)}></uui-toggle>
+          <uui-toggle slot="editor" label=${this.#t("bluebillywig_customFields")} .checked=${s.enableCustomFields} @change=${(e: Event) => this.#set("enableCustomFields", (e.target as HTMLInputElement).checked)}></uui-toggle>
         </umb-property-layout>
         <umb-property-layout
           label=${this.#t("bluebillywig_consentMessage")}
@@ -424,6 +430,7 @@ export class BbSettingsDashboardElement extends UmbElementMixin(LitElement) {
           <uui-textarea
             slot="editor"
             id="bb-settings-consent-message"
+            label=${this.#t("bluebillywig_consentMessage")}
             maxlength="500"
             ?readonly=${this.#pinned("consentMessage")}
             placeholder="Watching this video will transmit data to Blue Billywig, our video provider. Clicking Load will grant consent for all Blue Billywig videos on this page."
@@ -431,7 +438,7 @@ export class BbSettingsDashboardElement extends UmbElementMixin(LitElement) {
             @input=${(e: Event) => this.#set("consentMessage", (e.target as HTMLTextAreaElement).value)}></uui-textarea>
         </umb-property-layout>
         <umb-property-layout label=${this.#t("bluebillywig_ctaEditor")}>
-          <uui-toggle slot="editor" .checked=${s.enableCta} @change=${(e: Event) => this.#set("enableCta", (e.target as HTMLInputElement).checked)}></uui-toggle>
+          <uui-toggle slot="editor" label=${this.#t("bluebillywig_ctaEditor")} .checked=${s.enableCta} @change=${(e: Event) => this.#set("enableCta", (e.target as HTMLInputElement).checked)}></uui-toggle>
         </umb-property-layout>
       </uui-box>
       <div class="actions">
@@ -456,13 +463,6 @@ export class BbSettingsDashboardElement extends UmbElementMixin(LitElement) {
     .error { color: var(--uui-color-danger); }
     .hint { margin: 0 0 var(--uui-size-space-4); opacity: 0.8; font-size: 12px; }
   `;
-}
-
-function errorText(error: unknown): string | undefined {
-  if (!error) return undefined;
-  // Our own refusals are a short sentence in "error" (for example "API connection failed: Invalid API ID and secret combination").
-  const e = error as { message?: string; detail?: string; title?: string; error?: string; body?: { error?: string }; problemDetails?: { error?: string; detail?: string } };
-  return e.problemDetails?.error ?? e.body?.error ?? e.error ?? e.problemDetails?.detail ?? e.detail ?? e.message ?? e.title;
 }
 
 export default BbSettingsDashboardElement;

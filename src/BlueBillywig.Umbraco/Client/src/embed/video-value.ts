@@ -46,3 +46,11 @@ export function readValue(raw: unknown): VideoValue | undefined {
   if (v.type !== "clip" && v.type !== "channel" && v.type !== "shorts") return undefined;
   return { ...defaultsFor(v.type, id), ...v, id };
 }
+
+/**
+ * Whether the selected video is a different one (or none any more). A status message about the previous selection, such as
+ * "Embargo removed.", must not outlive it; changing only an option of the same video (playout, height) keeps it.
+ */
+export function selectionChanged(before: VideoValue | undefined, after: VideoValue | undefined): boolean {
+  return before?.type !== after?.type || before?.id !== after?.id;
+}

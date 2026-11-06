@@ -12,7 +12,7 @@ namespace BlueBillywig.Umbraco.Tests.Hardening;
 public class BaseUrlTests
 {
     [Theory]
-    [InlineData("https://bb.dev.bbovp.eu", "https://bb.dev.bbovp.eu")]
+    [InlineData("https://example.dev.bbovp.eu", "https://example.dev.bbovp.eu")]
     [InlineData("https://demo.bbvms.com/", "https://demo.bbvms.com")]
     [InlineData("  https://Demo.BBVMS.com  ", "https://demo.bbvms.com")]
     [InlineData("https://x.ovp.bluebillywig.eu", "https://x.ovp.bluebillywig.eu")]
@@ -53,20 +53,20 @@ public class BaseUrlTests
     [Fact]
     public void A_base_url_in_configuration_on_a_blue_billywig_domain_is_used()
     {
-        var store = Store(new FakeKeyValues(), new BlueBillywigOptions { Publication = "bb", ApiId = "1", ApiSecret = "s", BaseUrl = "https://bb.dev.bbovp.eu/" });
+        var store = Store(new FakeKeyValues(), new BlueBillywigOptions { Publication = "bb", ApiId = "1", ApiSecret = "s", BaseUrl = "https://example.dev.bbovp.eu/" });
 
         BlueBillywigSettings settings = store.Get();
 
-        Assert.Equal("https://bb.dev.bbovp.eu", settings.BaseUrl);
-        Assert.Equal("https://bb.dev.bbovp.eu", settings.ResolveBaseUrl());
+        Assert.Equal("https://example.dev.bbovp.eu", settings.BaseUrl);
+        Assert.Equal("https://example.dev.bbovp.eu", settings.ResolveBaseUrl());
         Assert.True(settings.HasCredentials);
         Assert.Contains("baseUrl", store.ConfigOverrides());
     }
 
     [Theory]
     [InlineData("https://evil.example")]
-    [InlineData("http://bb.dev.bbovp.eu")]
-    [InlineData("https://bb.dev.bbovp.eu.evil.example")]
+    [InlineData("http://example.dev.bbovp.eu")]
+    [InlineData("https://example.dev.bbovp.eu.evil.example")]
     public void A_configured_base_url_outside_the_allowlist_switches_the_connection_off_instead_of_sending_the_token_there(string configured)
     {
         var store = Store(new FakeKeyValues(), new BlueBillywigOptions { Publication = "bb", ApiId = "1", ApiSecret = "s", BaseUrl = configured });
@@ -115,7 +115,7 @@ public class BaseUrlTests
     public async Task Saving_and_testing_use_the_configured_base_url_whatever_the_caller_sends()
     {
         var settings = new FakeSettings();
-        settings.Value = settings.Value with { BaseUrl = "https://bb.dev.bbovp.eu" };
+        settings.Value = settings.Value with { BaseUrl = "https://example.dev.bbovp.eu" };
         var tester = new FakeTester();
         var client = new FakeClient();
         var controller = new SettingsController(settings, client, new BlueBillywigCleanup(new FakeKeyValues(), client), tester, NullLogger<SettingsController>.Instance);
@@ -124,8 +124,8 @@ public class BaseUrlTests
         await controller.TestConnection(new SettingsController.TestConnectionRequest("demo", "1", "typed-secret"));
 
         Assert.Equal(2, tester.Asked.Count);
-        Assert.All(tester.Asked, a => Assert.Equal("https://bb.dev.bbovp.eu", a.BaseUrl));
-        Assert.Equal("https://bb.dev.bbovp.eu", settings.Value.BaseUrl);
+        Assert.All(tester.Asked, a => Assert.Equal("https://example.dev.bbovp.eu", a.BaseUrl));
+        Assert.Equal("https://example.dev.bbovp.eu", settings.Value.BaseUrl);
     }
 
     [Fact]

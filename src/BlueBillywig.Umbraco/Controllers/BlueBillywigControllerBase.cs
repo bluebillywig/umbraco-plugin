@@ -17,6 +17,7 @@ namespace BlueBillywig.Umbraco.Controllers;
 [MapToApi(Constants.ApiName)]
 [JsonOptionsName(global::Umbraco.Cms.Core.Constants.JsonOptionsNames.BackOffice)]
 [ApiVersion("1.0")]
+[RefusalShape]
 [ApiExplorerSettings(GroupName = "BlueBillywig.Umbraco")]
 public abstract class BlueBillywigControllerBase : ControllerBase
 {

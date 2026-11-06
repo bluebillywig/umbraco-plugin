@@ -32,3 +32,13 @@ export function tabTarget(key: string, current: number, count: number): number |
 export function hoverPreviewAllowed(matches: (query: string) => boolean): boolean {
   return !matches("(hover: none)") && !matches("(prefers-reduced-motion: reduce)");
 }
+
+/**
+ * Where keyboard focus goes after a bulk action finishes. The button that was pressed often disappears with the toolbar
+ * (everything succeeded, so nothing is selected any more) and focus would fall back to the page body. The outcome is
+ * announced in a status region that can take focus (tabindex -1), so the person lands on what just happened.
+ */
+export function bulkFocusTarget(outcome: { failed: boolean; hasResult: boolean }): "bb-bulk-error" | "bb-bulk-result" | undefined {
+  if (outcome.failed) return "bb-bulk-error";
+  return outcome.hasResult ? "bb-bulk-result" : undefined;
+}

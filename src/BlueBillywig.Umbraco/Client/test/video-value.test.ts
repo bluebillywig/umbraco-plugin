@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_CHANNEL_HEIGHT, DEFAULT_SHORTS_HEIGHT, defaultsFor, readValue } from "../src/embed/video-value";
+import { DEFAULT_CHANNEL_HEIGHT, DEFAULT_SHORTS_HEIGHT, defaultsFor, readValue, selectionChanged } from "../src/embed/video-value";
 
 describe("defaultsFor", () => {
   it("gives a clip the transcript, no chapters and lazy loading", () => {
@@ -52,5 +52,21 @@ describe("readValue", () => {
     ["a missing type", { id: 4 }],
   ])("treats %s as no value", (_name, raw) => {
     expect(readValue(raw)).toBeUndefined();
+  });
+});
+
+describe("selectionChanged", () => {
+  const clip = (id: number) => defaultsFor("clip", id);
+
+  it("is true when the selection is cleared, set, or another video", () => {
+    expect(selectionChanged(clip(1), undefined)).toBe(true);
+    expect(selectionChanged(undefined, clip(1))).toBe(true);
+    expect(selectionChanged(clip(1), clip(2))).toBe(true);
+    expect(selectionChanged(clip(1), defaultsFor("channel", 1))).toBe(true);
+  });
+
+  it("is false for the same video with another option, or for nothing both times", () => {
+    expect(selectionChanged(clip(1), { ...clip(1), playout: "x" })).toBe(false);
+    expect(selectionChanged(undefined, undefined)).toBe(false);
   });
 });

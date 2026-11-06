@@ -65,3 +65,57 @@ export function saveError(error: unknown, what = "change", t: Term = englishTerm
   if ([400, 409, 422].includes(status) && typeof detail === "string" && detail.length > 0) return detail;
   return t("bluebillywig_saveFailed", noun);
 }
+
+/**
+ * The sentence for an editor out of a failed call from a settings-style form. The server's refusals are problem details
+ * whose `error` extension and `detail` carry the sentence (see the RefusalShape filter on the server), so those come first;
+ * a validation problem's first message is next. The title is the HTTP status text ("Bad Request") and only a last resort.
+ * Undefined when there is nothing to say, so the caller can use its own fallback sentence.
+ */
+export function errorText(error: unknown): string | undefined {
+  if (!error) return undefined;
+  const e = error as {
+    message?: unknown;
+    detail?: unknown;
+    title?: unknown;
+    error?: unknown;
+    body?: { error?: unknown };
+    problemDetails?: { error?: unknown; detail?: unknown; errors?: unknown; title?: unknown };
+  };
+  const text = (v: unknown): string | undefined => (typeof v === "string" && v.trim().length > 0 ? v : undefined);
+  const p = e.problemDetails;
+  return (
+    text(p?.error) ??
+    text(p?.detail) ??
+    firstOf(p?.errors) ??
+    text(e.body?.error) ??
+    text(e.error) ??
+    text(e.detail) ??
+    text(e.message) ??
+    text(p?.title) ??
+    text(e.title)
+  );
+}
+
+/** The first message of a problem details `errors` member: a list of sentences, or a map from field to a list of them. */
+function firstOf(errors: unknown): string | undefined {
+  if (Array.isArray(errors)) return errors.find((m): m is string => typeof m === "string" && m.trim().length > 0);
+  if (errors && typeof errors === "object") {
+    for (const list of Object.values(errors)) {
+      const first = firstOf(list);
+      if (first) return first;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * The address the API calls default to for a publication, shown as the placeholder of the read-only base URL field. Empty
+ * until the publication is valid (a lowercase DNS label with dots and dashes, 3 to 63 characters), so a half-typed or
+ * refused value never previews an address that would not resolve.
+ */
+export function defaultApiAddress(publication?: string | null): string {
+  const p = publication ?? "";
+  const valid = p.length >= 3 && p.length <= 63 && /^[a-z0-9]([a-z0-9-]|\.(?!\.))*[a-z0-9]$/.test(p) && !p.includes("..");
+  return valid ? `https://${p}.bbvms.com` : "";
+}

@@ -13,13 +13,13 @@ What you can do depends on your user group:
 
 Normally done once by a site administrator.
 
+![The Blue Billywig settings dashboard in the Settings section: connection, defaults and content protection boxes (the host in the API base URL field is replaced by a placeholder in this image)](images/settings.png)
+
+*The Blue Billywig dashboard in Settings. Saved secrets show as "Saved. Leave empty to keep".*
+
 1. Go to **Settings** and open the **Blue Billywig** dashboard.
 2. Under **Blue Billywig connection** enter your **Publication** (the first part of `publication.bbvms.com`), **API ID** and **API secret**. The **API base URL** below it is read-only: it is set by your developer in the site's configuration, and normally stays empty (the address is then built from the publication).
 3. Click **Save**, then **Test connection**. A message such as "Connected to ..." means it works. "SAPI request failed (401)" means the ID or secret is wrong.
-
-![The Blue Billywig settings dashboard in the Settings section: connection, defaults and content protection boxes](images/settings.png)
-
-*The Blue Billywig dashboard in Settings. Saved secrets show as "Saved. Leave empty to keep".*
 
 The API secret is never shown again after saving. Leave the field empty to keep the saved one. If a field is greyed out, your developer set it in the site's configuration; ask them to change it. Until credentials are set, the library views show a banner "the package is installed but not configured yet" with a link to the settings.
 
@@ -74,6 +74,7 @@ Open the **Blue Billywig** section (top bar). Tabs: **Videos**, **Livestreams**,
 *The Videos tab: search and filters on top, clips as tiles, pages below.*
 
 - **Videos.** A grid of your clips, paginated. Search by title, description or tags; filter by **Published from** and **Published to** and by **Media type** (all, video, audio, image, document); **Clear filters** resets. A **Folders** tree on the side narrows to a folder; it appears only when the publication has folders (checked with stubbed data only: the development publication has none, so it is not in the screenshots). Hover over a picture for a short silent preview, where the clip has one (not on touch screens or with reduced motion).
+  - *Search with a hyphenated word:* a single hyphenated word (for example `verify-10`) is sent to Blue Billywig as a quoted phrase, because Blue Billywig otherwise reads it as several separate words and returns most of the library. A search of several words is sent as typed, with special characters escaped.
 
 ![The Videos tab with the term quick typed into the search box; the grid shows the two matching clips](images/library-search.png)
 
@@ -87,15 +88,7 @@ Open the **Blue Billywig** section (top bar). Tabs: **Videos**, **Livestreams**,
 
 - **Livestreams** and **Playlists** list them. A playlist has a **Copy** button for its embed code; search playlists by title.
 
-![The Playlists tab: a table of playlists with title, id, status, created date and an embed code with a Copy button](images/library-playlists.png)
-
-*The Playlists tab: each playlist shows its embed code with a Copy button.*
-
 - **Platform.** Links to your publication in the OVP (library, playouts, channels, analytics) and to documentation and support.
-
-![The Platform tab with the publication name and host, quick links to the OVP and a documentation and support list](images/library-platform.png)
-
-*The Platform tab: the connected publication and quick links.*
 
 If Blue Billywig cannot be reached, the list shows an error with **Try again**. An error is not the same as "no videos". Note: on the development platform, recently uploaded clips or the date filter sometimes lag behind, because the platform answers from servers that briefly disagree. Wait a minute and reload.
 

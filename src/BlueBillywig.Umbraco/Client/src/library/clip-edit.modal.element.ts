@@ -107,7 +107,7 @@ export class BbClipEditModalElement extends UmbModalBaseElement<ClipEditModalDat
     super.connectedCallback();
     const id = this.data?.clipId;
     if (!id) return;
-    const [clip, caps] = await Promise.all([tryExecute(this, getLibraryClipsByIdEdit({ path: { id } })), tryExecute(this, getLibraryCapabilities())]);
+    const [clip, caps] = await Promise.all([tryExecute(this, getLibraryClipsByIdEdit({ path: { id } }), { disableNotifications: true }), tryExecute(this, getLibraryCapabilities(), { disableNotifications: true })]);
     if (clip.error || !clip.data) {
       this._loadError = saveError(clip.error, "clip");
       return;
@@ -189,7 +189,7 @@ export class BbClipEditModalElement extends UmbModalBaseElement<ClipEditModalDat
       return;
     }
     this._saving = true;
-    const { data, error } = await tryExecute(this, putLibraryClipsById({ path: { id }, body }));
+    const { data, error } = await tryExecute(this, putLibraryClipsById({ path: { id }, body }), { disableNotifications: true });
     this._saving = false;
     if (error || !data) {
       this._error = saveError(error, "changes");
@@ -207,7 +207,7 @@ export class BbClipEditModalElement extends UmbModalBaseElement<ClipEditModalDat
     if (!id || !thumb.src || thumb.main) return;
     this._thumbBusy = true;
     this._thumbStatus = "Setting…";
-    const { data, error } = await tryExecute(this, postLibraryClipsByIdThumbnailsMain({ path: { id }, body: { src: thumb.src } }));
+    const { data, error } = await tryExecute(this, postLibraryClipsByIdThumbnailsMain({ path: { id }, body: { src: thumb.src } }), { disableNotifications: true });
     this._thumbBusy = false;
     if (error || !data) {
       this._thumbStatus = saveError(error, "thumbnail change");
@@ -256,7 +256,7 @@ export class BbClipEditModalElement extends UmbModalBaseElement<ClipEditModalDat
       this._thumbStatus = "Could not read the image file.";
       return;
     }
-    const { data, error } = await tryExecute(this, postLibraryClipsByIdThumbnails({ path: { id }, body: { data: dataUri } }));
+    const { data, error } = await tryExecute(this, postLibraryClipsByIdThumbnails({ path: { id }, body: { data: dataUri } }), { disableNotifications: true });
     this._thumbBusy = false;
     if (error || !data) {
       this._thumbStatus = saveError(error, "thumbnail upload");
@@ -296,6 +296,7 @@ export class BbClipEditModalElement extends UmbModalBaseElement<ClipEditModalDat
     const { data, error } = await tryExecute(
       this,
       postLibraryClipsByIdSubtitles({ path: { id }, body: { isoCode: this._subIso, name: this._subName, default: this._subDefault, publish: this._subPublish, fileName: file.name, content } }),
+      { disableNotifications: true },
     );
     this._subBusy = false;
     if (error || !data) {
@@ -318,7 +319,7 @@ export class BbClipEditModalElement extends UmbModalBaseElement<ClipEditModalDat
     this._subError = undefined;
     this._subStatus = undefined;
     this._subBusy = true;
-    const { data, error } = await tryExecute(this, postLibraryClipsByIdSubtitlesBySubtitleIdDefault({ path: { id, subtitleId: sub.id }, body: { confirm: true } }));
+    const { data, error } = await tryExecute(this, postLibraryClipsByIdSubtitlesBySubtitleIdDefault({ path: { id, subtitleId: sub.id }, body: { confirm: true } }), { disableNotifications: true });
     this._subBusy = false;
     if (error || !data) {
       this._subError = saveError(error, "default subtitle change");
@@ -339,7 +340,7 @@ export class BbClipEditModalElement extends UmbModalBaseElement<ClipEditModalDat
     this._subError = undefined;
     this._subStatus = undefined;
     this._subBusy = true;
-    const { data, error } = await tryExecute(this, deleteLibraryClipsByIdSubtitlesBySubtitleId({ path: { id, subtitleId: sub.id } }));
+    const { data, error } = await tryExecute(this, deleteLibraryClipsByIdSubtitlesBySubtitleId({ path: { id, subtitleId: sub.id } }), { disableNotifications: true });
     this._subBusy = false;
     if (error || !data) {
       this._subError = statusOf(error) === 403 ? "You do not have permission to delete subtitles." : saveError(error, "subtitle deletion");

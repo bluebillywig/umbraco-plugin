@@ -46,7 +46,7 @@ export class BbClipAnalyticsElement extends UmbElementMixin(LitElement) {
     const seq = ++this.#seq;
     this._loading = true;
     this._error = undefined;
-    const { data, error } = await tryExecute(this, getAnalyticsClipsById({ path: { id: this.clipId }, query: { days: this._days } }));
+    const { data, error } = await tryExecute(this, getAnalyticsClipsById({ path: { id: this.clipId }, query: { days: this._days } }), { disableNotifications: true });
     if (seq !== this.#seq) return;
     this._loading = false;
     if (error || !data) {

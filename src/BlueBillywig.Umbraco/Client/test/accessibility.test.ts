@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { hoverPreviewAllowed, tabTarget } from "../src/shared/accessibility";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { bulkFocusTarget, hoverPreviewAllowed, tabTarget } from "../src/shared/accessibility";
 
 describe("hoverPreviewAllowed", () => {
   const media = (active: string[]) => (query: string) => active.includes(query);
@@ -49,5 +51,24 @@ describe("tabTarget", () => {
   it("stays on the only tab", () => {
     expect(tabTarget("ArrowRight", 0, 1)).toBe(0);
     expect(tabTarget("ArrowLeft", 0, 1)).toBe(0);
+  });
+});
+
+describe("bulkFocusTarget", () => {
+  it("goes to the result region after a bulk action, so focus is not lost with the removed toolbar", () => {
+    expect(bulkFocusTarget({ failed: false, hasResult: true })).toBe("bb-bulk-result");
+  });
+
+  it("goes to the error when the call failed, and nowhere when there is nothing to land on", () => {
+    expect(bulkFocusTarget({ failed: true, hasResult: false })).toBe("bb-bulk-error");
+    expect(bulkFocusTarget({ failed: false, hasResult: false })).toBeUndefined();
+  });
+
+  it("matches the library view: both regions can take focus and the bulk handlers move it", () => {
+    const source = readFileSync(join(__dirname, "..", "src", "library", "clip-browser.element.ts"), "utf8");
+    expect(source).toMatch(/id="bb-bulk-result"[^>]*tabindex="-1"/);
+    expect(source).toMatch(/id="bb-bulk-error"[^>]*tabindex="-1"/);
+    expect(source).toContain("void this.#focusOutcome(false)");
+    expect(source).toContain("void this.#focusOutcome(true)");
   });
 });

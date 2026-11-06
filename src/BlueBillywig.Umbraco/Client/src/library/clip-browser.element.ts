@@ -19,6 +19,7 @@ import {
   type PolicyResponseModel,
 } from "../api/index.js";
 import { libraryError, saveError } from "./errors.js";
+import { bulkFocusTarget } from "../shared/accessibility.js";
 import type { Term } from "../localization/terms.js";
 import "./clip-tile.element.js";
 import "./folder-tree.element.js";
@@ -91,7 +92,7 @@ export class BbClipBrowserElement extends UmbElementMixin(LitElement) {
 
   /** One query for live source-type clips; the toggle shows when it finds any. A failure hides the toggle, it never blocks the list. */
   async #loadLive() {
-    const { data, error } = await tryExecute(this, getClips({ query: { sourcetype: "live", page: 0 } }));
+    const { data, error } = await tryExecute(this, getClips({ query: { sourcetype: "live", page: 0 } }), { disableNotifications: true });
     this._hasLive = hasLiveStreams(data, error);
   }
 
@@ -103,7 +104,7 @@ export class BbClipBrowserElement extends UmbElementMixin(LitElement) {
 
   async #loadFolders() {
     if (!this.#hasFilters) return;
-    const { data, error } = await tryExecute(this, this.variant === "picker" ? getFolders() : getLibraryFolders());
+    const { data, error } = await tryExecute(this, this.variant === "picker" ? getFolders() : getLibraryFolders(), { disableNotifications: true });
     // A failure here is shown, but the list can still be used without the folder sidebar.
     if (error) this._error = libraryError(error, "folders", this.#t);
     else this._folders = data ?? [];
@@ -132,7 +133,7 @@ export class BbClipBrowserElement extends UmbElementMixin(LitElement) {
         : this.variant === "livestreams"
           ? getLibraryLivestreams({ query })
           : getLibraryClips({ query: filters });
-    const { data, error } = await tryExecute(this, call);
+    const { data, error } = await tryExecute(this, call, { disableNotifications: true });
     if (seq !== this.#seq) return;
     this._loading = false;
     if (error || !data) {
@@ -206,7 +207,7 @@ export class BbClipBrowserElement extends UmbElementMixin(LitElement) {
     this._bulkBusy = true;
     this._bulkError = undefined;
     this._bulkResult = undefined;
-    const { data, error } = await tryExecute(this, postLibraryClipsBulk({ body: { action: this._bulkAction, ids, value: this._bulkValue } }));
+    const { data, error } = await tryExecute(this, postLibraryClipsBulk({ body: { action: this._bulkAction, ids, value: this._bulkValue } }), { disableNotifications: true });
     this._bulkBusy = false;
     this.#afterBulk(data, error);
   }
@@ -228,14 +229,23 @@ export class BbClipBrowserElement extends UmbElementMixin(LitElement) {
     this._bulkBusy = true;
     this._bulkError = undefined;
     this._bulkResult = undefined;
-    const { data, error } = await tryExecute(this, postLibraryClipsBulkDelete({ body: { ids } }));
+    const { data, error } = await tryExecute(this, postLibraryClipsBulkDelete({ body: { ids } }), { disableNotifications: true });
     this._bulkBusy = false;
     this.#afterBulk(data, error);
+  }
+
+  /** Moves focus to the outcome once it is rendered: the toolbar (and the button just pressed) may be gone by then. */
+  async #focusOutcome(failed: boolean) {
+    const id = bulkFocusTarget({ failed, hasResult: this._bulkResult !== undefined });
+    if (!id) return;
+    await this.updateComplete;
+    this.renderRoot.querySelector<HTMLElement>(`#${id}`)?.focus();
   }
 
   #afterBulk(data: BulkResultResponseModel | undefined, error: unknown) {
     if (error || !data) {
       this._bulkError = saveError(error, "bulk action", this.#t);
+      void this.#focusOutcome(true);
       return;
     }
     this._bulkResult = data;
@@ -244,6 +254,7 @@ export class BbClipBrowserElement extends UmbElementMixin(LitElement) {
     data.succeeded.forEach((id) => next.delete(id));
     this._selected = next;
     void this.reload();
+    void this.#focusOutcome(false);
   }
 
   #renderBulk() {
@@ -279,9 +290,9 @@ export class BbClipBrowserElement extends UmbElementMixin(LitElement) {
           <uui-button id="bb-bulk-clear" look="secondary" label=${this.#t("bluebillywig_clearSelection")} @click=${() => this.#clearSelection()}>${this.#t("bluebillywig_clearSelection")}</uui-button>
         </div>`
       : nothing}
-    ${this._bulkError ? html`<p class="error-line" id="bb-bulk-error" role="alert">${this._bulkError}</p>` : nothing}
+    ${this._bulkError ? html`<p class="error-line" id="bb-bulk-error" role="alert" tabindex="-1">${this._bulkError}</p>` : nothing}
     ${r
-      ? html`<div class="bulk-result" id="bb-bulk-result" role="status">
+      ? html`<div class="bulk-result" id="bb-bulk-result" role="status" tabindex="-1">
           <strong>${this.#t("bluebillywig_bulkResult", r.success, r.failed)}</strong>
           ${r.errors.length > 0
             ? html`<ul>${r.errors.map((e) => html`<li data-clip-id=${e.id}>${this._bulkTitles.get(e.id) ?? this.#t("bluebillywig_clipN", e.id)} (${e.id}): ${e.error}</li>`)}</ul>`
@@ -431,6 +442,7 @@ export class BbClipBrowserElement extends UmbElementMixin(LitElement) {
     .bulk { display: flex; flex-wrap: wrap; align-items: center; gap: var(--uui-size-space-3); padding: var(--uui-size-space-3) var(--uui-size-space-4); margin-bottom: var(--uui-size-space-4); background: var(--uui-color-surface-emphasis); border-radius: var(--uui-border-radius); }
     .cap { color: var(--uui-color-text-alt); font-size: 12px; }
     .error-line { color: var(--uui-color-danger-standalone); }
+    .bulk-result:focus, .error-line:focus { outline: 2px solid var(--uui-color-focus); outline-offset: 2px; }
     .bulk-result { margin-bottom: var(--uui-size-space-4); padding: var(--uui-size-space-3) var(--uui-size-space-4); border: 1px solid var(--uui-color-border); border-radius: var(--uui-border-radius); }
     .bulk-result ul { margin: var(--uui-size-space-2) 0 0; padding-left: 20px; color: var(--uui-color-danger-standalone); }
     .layout { display: flex; gap: var(--uui-size-space-5); align-items: flex-start; }
