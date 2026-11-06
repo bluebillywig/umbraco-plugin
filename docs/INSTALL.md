@@ -1,6 +1,6 @@
 # Installing Blue Billywig in an Umbraco site
 
-For the person who owns the Umbraco site. Editors: see [USER-GUIDE.md](USER-GUIDE.md). This describes version `1.0.0-rc.1`, a **pre-release** on nuget.org (install with `--prerelease`; licence MIT). The local package file route below is for testing a build of your own. What works and what is proven is in [PARITY.md](PARITY.md); read it before you promise anything to a customer. Steps marked "not verified" were read from the code and not run on a separate site. The test site in this repository (`src/UmbracoSite`) is the only site the package has been run in.
+For the person who owns the Umbraco site. Editors: see [USER-GUIDE.md](USER-GUIDE.md). This describes version `1.0.0-rc.1`, a **pre-release** on nuget.org (install with `--prerelease`; licence MIT). The local package file route below is for testing a build of your own. What works and what is proven is in [PARITY.md](PARITY.md); read it before you promise anything to a customer. The package was installed from nuget.org into a fresh Umbraco 17.8.0 site on 2026-11-05 (install test of `1.0.0-rc.1`, details under "Install test" below). Steps marked "not verified" are what that test did not cover: they were read from the code and run only on the test site in this repository (`src/UmbracoSite`).
 
 ## Requirements
 
@@ -11,14 +11,14 @@ For the person who owns the Umbraco site. Editors: see [USER-GUIDE.md](USER-GUID
 
 ## Install
 
-Once the pre-release is on nuget.org (it is not yet), install it with `--prerelease` or the exact version:
+The pre-release is on nuget.org. Install it with `--prerelease` or the exact version:
 
 ```bash
 dotnet add package BlueBillywig.Umbraco --version 1.0.0-rc.1
 # or: dotnet add package BlueBillywig.Umbraco --prerelease
 ```
 
-From a local folder (for testing before publication): build it ([BUILD.md](BUILD.md)) or get the `.nupkg` from Blue Billywig, put it in a folder, and add that folder as a source:
+From a local folder (to test a build of your own): build it ([BUILD.md](BUILD.md)) or get the `.nupkg` from Blue Billywig, put it in a folder, and add that folder as a source:
 
 ```bash
 dotnet add package BlueBillywig.Umbraco --version 1.0.0-rc.1 --source /path/to/folder-with-nupkg
@@ -26,7 +26,29 @@ dotnet add package BlueBillywig.Umbraco --version 1.0.0-rc.1 --source /path/to/f
 
 Either way this pulls in `BlueBillywig.Sapi` and `Swashbuckle.AspNetCore`. Your site's own Umbraco packages must satisfy the range above.
 
-There is nothing to register in `Program.cs` beyond what Umbraco needs. The package uses `IComposer` classes, which `AddComposers()` finds. Its backoffice files are served from `/App_Plugins/BlueBillywig/` as Static Web Assets. Restart the site after adding the package. Not verified on a separate site.
+There is nothing to register in `Program.cs` beyond what Umbraco needs. The package uses `IComposer` classes, which `AddComposers()` finds, so `AddComposers()` must be in the chain. This is the wiring the install test used (a hand-written web project, SQLite, unattended install):
+
+```csharp
+builder.CreateUmbracoBuilder()
+    .AddBackOffice()
+    .AddWebsite()
+    .AddDeliveryApi()
+    .AddComposers()
+    .Build();
+```
+
+The backoffice files are served from `/App_Plugins/BlueBillywig/` as Static Web Assets. Restart the site after adding the package.
+
+### Install test (2026-11-05)
+
+`dotnet add package BlueBillywig.Umbraco --version 1.0.0-rc.1` was run against a fresh Umbraco 17.8.0 site. Observed: restore from nuget.org; build with 0 warnings; startup without package errors; `/App_Plugins/BlueBillywig/umbraco-package.json` serves version `1.0.0-rc.1`; the package's API routes answer 401 when not signed in; backoffice login works; the settings dashboard renders with the "not configured" banner; saving an invalid publication is refused. **Not verified on a fresh site:** giving the section to a user group and the Videos, Upload and Platform tabs, the property editor, the Razor tag helpers, the Delivery API output and rich text.
+
+### Install checklist
+
+1. Add the package and make sure `AddComposers()` is called (above).
+2. Give the **Blue Billywig** section to every user group that needs it, **Administrators included** (next section). Without it the section address answers a plain "Not found".
+3. Enter the connection settings (Configure, below).
+4. For the video sitemap, set one of: `Umbraco:CMS:WebRouting:UmbracoApplicationUrl`, a domain in **Settings > Culture and Hostnames**, or the host in `AllowedHosts`. The default `AllowedHosts: "*"` does not count. With none of them `/video-sitemap.xml` answers 404 (see "Video sitemap and JSON-LD").
 
 ### Give user groups the section (an install step)
 
@@ -35,6 +57,8 @@ The package adds a **Blue Billywig** section to the backoffice (Videos, Livestre
 1. **Users > User Groups**, open a group (Administrators included).
 2. Under **Sections**, tick **Blue Billywig**. Save.
 3. If the section does not show, the users sign out and in again (not verified).
+
+**Even Administrators must be given the section.** A user whose groups lack it gets Umbraco's plain "Not found" page at `/umbraco/section/blue-billywig/...`; that page is Umbraco's own answer for any section the user may not enter, and the package cannot change its wording. If you see it, check the user group first.
 
 The server checks the same rule: every library, edit, upload and CTA endpoint answers 403 for a user whose groups do not allow the section. Not verified on a fresh site; the check is `SectionAccessRequirement` in `Authorization/BlueBillywigPolicies.cs`.
 
@@ -186,9 +210,9 @@ Behaviour to know:
 
 ## Video sitemap and JSON-LD
 
-**Sitemap.** The package serves `/video-sitemap.xml` (anonymous, `application/xml`, cached by clients for 10 minutes). It lists the published pages that embed a clip (through the property, blocks or rich text), with the clip's title, description, thumbnail, player URL, duration and upload date. Left out: pages without a template or URL, pages behind Public Access, clips that are not published or have a content protection policy, clips of another publication. If SAPI cannot be asked the route answers **503 with `Retry-After: 300`** instead of an empty sitemap. At most 2000 clips; the result is cached 10 minutes for up to 8 host names.
+**Sitemap.** The package serves `/video-sitemap.xml` (anonymous, `application/xml`, cached by clients for 10 minutes). It lists the published pages that embed a clip (through the property, blocks or rich text), with the clip's title, description, thumbnail, player URL, duration and upload date. Left out: pages without a template or URL, pages behind Public Access, clips that are not published or have a content protection policy, clips of another publication. A site **without credentials** answers **200 with an empty, valid `urlset`** (logged once at Information, not at Warning, and not cached, so connecting shows at once). A site with credentials whose SAPI cannot be reached answers **503 with `Retry-After: 300`** instead of an empty sitemap, so a crawler does not read an outage as "all videos removed". At most 2000 clips; the result is cached 10 minutes for up to 8 host names.
 
-**Which hosts get a sitemap.** The route is anonymous and its answer names absolute URLs, so the request's `Host` header is only compared with what the site has configured, never copied into a URL. The site's own hosts are, in this order: the domains assigned to content in Umbraco (**Settings > Culture and Hostnames**), `Umbraco:CMS:WebRouting:UmbracoApplicationUrl`, and the plain (wildcard-free) entries of `AllowedHosts`. A request for any other host gets a plain **404** (`Cache-Control: no-store`), and a site with none of the three configured has no sitemap until it sets one. The URLs in the file use the configured origin, with the request's scheme only where the entry names none.
+**Which hosts get a sitemap.** The route is anonymous and its answer names absolute URLs, so the request's `Host` header is only compared with what the site has configured, never copied into a URL. The site's own hosts are, in this order: the domains assigned to content in Umbraco (**Settings > Culture and Hostnames**), `Umbraco:CMS:WebRouting:UmbracoApplicationUrl`, and the plain (wildcard-free) entries of `AllowedHosts`. Set one of them, or `/video-sitemap.xml` answers 404; the default `AllowedHosts: "*"` does not count. A request for any other host gets a plain **404** (`Cache-Control: no-store`), and a site with none of the three configured has no sitemap until it sets one. The URLs in the file use the configured origin, with the request's scheme only where the entry names none.
 
 Umbraco has no built-in sitemap to extend, so this is a separate file. Make crawlers find it:
 
@@ -322,7 +346,7 @@ A NuGet package has no uninstall hook, so removing it leaves its settings, secre
 
 Symptoms that were seen during development are marked.
 
-**The Blue Billywig section is not in the backoffice.** No user group has it. Add it to the group (see "Give user groups the section"). The settings dashboard is in **Settings** and the analytics dashboard in **Content**; those follow those sections.
+**The Blue Billywig section is not in the backoffice, or its address shows "Not found".** No user group has it, Administrators included. Add it to the group (see "Give user groups the section"). The settings dashboard is in **Settings** and the analytics dashboard in **Content**; those follow those sections.
 
 **The dashboard or picker is missing in the backoffice.** The package's backoffice files were not served. Check that `/App_Plugins/BlueBillywig/umbraco-package.json` answers 200 on your site and hard-reload the backoffice. If you built the package yourself, see "wrong order" in [BUILD.md](BUILD.md). A package packed without building the client first installs fine and has no backoffice UI.
 
@@ -358,7 +382,9 @@ Symptoms that were seen during development are marked.
 
 **A placeholder with "Load video" shows instead of the player.** Your consent provider returned false. Click the button, or fix the provider.
 
-**The video sitemap answers 503.** SAPI could not be asked (not configured, an outage). It answers 503 with `Retry-After` on purpose, so a crawler keeps its last good copy.
+**The video sitemap answers 503.** Credentials are configured but SAPI could not be asked (an outage). It answers 503 with `Retry-After` on purpose, so a crawler keeps its last good copy. Without credentials it answers 200 with an empty sitemap.
+
+**The video sitemap answers 404.** The request's host is not one the site has configured: set `Umbraco:CMS:WebRouting:UmbracoApplicationUrl`, a domain in Culture and Hostnames, or a plain host in `AllowedHosts` (`"*"` does not count).
 
 **A pasted video link in rich text shows nothing on the frontend.** The template does not render the rich text through Umbraco's property rendering, or the link has a shape other than the three accepted ones.
 

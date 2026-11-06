@@ -4,7 +4,7 @@ Guidance for Claude Code (claude.ai/code) when working in this repository.
 
 ## What this is
 
-`BlueBillywig.Umbraco`: Blue Billywig OVP (SAPI) integration for **Umbraco 17** (.NET 10, developed against 17.8.0), the counterpart of the reference plugin (version 2.0.5). Version `1.0.0-rc.1`, a pre-release planned for nuget.org (not published yet). Remote: `bluebillywig/umbraco-plugin`, to be made public at release time. Licence MIT (`LICENSE`, `PackageLicenseExpression`). The goal is functional parity, tracked row by row in `docs/PARITY.md`. Don't mark a row Proven without the evidence it asks for.
+`BlueBillywig.Umbraco`: Blue Billywig OVP (SAPI) integration for **Umbraco 17** (.NET 10, developed against 17.8.0), the counterpart of the reference plugin (version 2.0.5). Version `1.0.0-rc.1`, a pre-release published on nuget.org. Remote: `bluebillywig/umbraco-plugin`, to be made public at release time. Licence MIT (`LICENSE`, `PackageLicenseExpression`). The goal is functional parity, tracked row by row in `docs/PARITY.md`. Don't mark a row Proven without the evidence it asks for.
 
 ## Commands
 

@@ -233,6 +233,8 @@ Last updated 2026-11-05. Counts are computed from the rows above by a script, no
 
 `1.0.0-rc.1` was published to nuget.org on 2026-11-05 as a pre-release; parity is not proven; see the table.
 
+Install test (2026-11-05): `1.0.0-rc.1` from nuget.org was installed into a fresh Umbraco 17.8.0 site (hand-written web project, SQLite, unattended install). Restore from nuget.org, a build with 0 warnings, startup without package errors, `/App_Plugins/BlueBillywig/umbraco-package.json` serving 1.0.0-rc.1, API routes answering 401 unauthenticated, backoffice login, the settings dashboard with the not-configured banner and the refusal of an invalid publication were observed. Not covered, so still unverified on a fresh site: giving the section to a group and the Videos, Upload and Platform tabs, the property editor, the Razor tag helpers, the Delivery API output and rich text. That test also found the issues listed below as fixed after rc.1.
+
 Parity is **not** proven: rows are still Partial, so the goal stated at the top is not reached, and the independent audit of the table against the plugin and the running site is not done. The rows that are not Proven, and why:
 
 | # | Why it is not Proven |
@@ -286,10 +288,18 @@ Parity is **not** proven: rows are still Partial, so the goal stated at the top 
 
 ## Known issues
 
-Found in the 2026-11-05 browser round on HEAD 4e8fb98.
+Found in the 2026-11-05 browser round on HEAD 4e8fb98 and the install test of rc.1 the same day.
 
-- (a) Library search for a full hyphenated term (for example `umbraco-poc-test-b1`) returned the unfiltered default list while its parts (`umbraco`, `poc`, `b1`) filtered. Likely SAPI tokenised search; the user sees an unfiltered list while the box has text. Client: the library search in `Client/src/`; not yet located in the code.
-- (b) The video picker keeps a stale "Embargo removed." text after the property's Remove button (`Client/src/embed/video-picker.element.ts`, `_bannerMessage` is not reset).
-- (c) Focus is lost after a bulk Apply: the toolbar is removed and focus falls to body (library bulk actions, K2).
+- (a) Library search for a full hyphenated term (for example `umbraco-poc-test-b1`) returned the unfiltered default list while its parts (`umbraco`, `poc`, `b1`) filtered. The package sends the term escaped as `q=umbraco\-poc\-test\-b1` and nothing else (the reference plugin escapes the same way); the cause is not confirmed against the platform and is documented in [USER-GUIDE.md](USER-GUIDE.md) as probable upstream behaviour. Workaround: search for one part.
 - (d) Uploads ignore the chosen status on bb.dev (U3).
 - (e) SAPI cannot set archived or clear an embargo on bb.dev (M1, M3, E24); a past marker stands in for the embargo.
+
+## Fixed after rc.1, unreleased
+
+Fixed in the working tree after `1.0.0-rc.1`, covered by unit tests; not yet observed in a browser.
+
+- A refused settings save showed only "Bad Request": the backoffice's API interceptor replaces any error body that is not problem details. Every backoffice API refusal (status 400 and up, including the automatic model-validation 400) is now problem details with the sentence in `detail` and `error` (`[RefusalShape]` on `BlueBillywigControllerBase`), the settings dashboard reads it and suppresses the generic toast, and the API base URL preview stays empty until the publication is valid.
+- Settings dashboard inputs, selects, toggles and the textarea had no accessible label (console warnings "needs a label"); all have one, and a Vitest check over the sources fails when one is added without.
+- The video picker kept a stale "Embargo removed." after Remove or a change of video (was known issue b).
+- Focus fell to the page body after a bulk Apply or Delete in the library; it now moves to the result (or error) region (was known issue c).
+- `/video-sitemap.xml` answered 503 and logged a Warning on a site without credentials; it now answers 200 with an empty valid urlset (logged once at Information). A configured site whose SAPI is unreachable still answers 503.
