@@ -2,6 +2,7 @@ using System.Xml.Linq;
 using BlueBillywig.Umbraco.Embedding;
 using BlueBillywig.Umbraco.Sapi;
 using BlueBillywig.Umbraco.Seo;
+using BlueBillywig.Umbraco.Tests.Gate;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -165,15 +166,57 @@ public class VideoSitemapServiceTests
     }
 
     [Fact]
-    public async Task Without_credentials_the_sitemap_is_unavailable_not_empty()
+    public async Task Without_credentials_the_sitemap_is_an_empty_valid_urlset_and_is_not_cached()
     {
         _client.IsConnected = false;
         Page("https://site.example/a", Clip(1));
 
         SitemapResult result = await _service.GetAsync(Site("site.example"), default);
 
-        Assert.False(result.Ok);
-        Assert.Null(result.Xml);
+        Assert.True(result.Ok);
+        Assert.Empty(Locs(Parse(result)));
+        Assert.Equal("urlset", Parse(result).Root!.Name.LocalName);
+        Assert.Equal(0, _pages.Calls);
+        Assert.Empty(_client.Requests);
+
+        // Connecting is visible at once: nothing about the unconfigured answer was stored.
+        _client.IsConnected = true;
+        SapiClip(1);
+        Assert.Equal(["https://site.example/a"], Locs(Parse(await _service.GetAsync(Site("site.example"), default))));
+    }
+
+    [Fact]
+    public async Task Without_credentials_it_logs_once_below_warning()
+    {
+        _client.IsConnected = false;
+        var log = new ListLogger();
+        var factory = new LoggerAdapter(log);
+        var service = new VideoSitemapService(_pages, _client, _settings, _cache, factory);
+
+        await service.GetAsync(Site("site.example"), default);
+        await service.GetAsync(Site("site.example"), default);
+
+        Assert.Single(log.Entries);
+        Assert.True(log.Entries[0].Level < Microsoft.Extensions.Logging.LogLevel.Warning);
+    }
+
+    private sealed class LoggerAdapter(Microsoft.Extensions.Logging.ILogger inner) : Microsoft.Extensions.Logging.ILogger<VideoSitemapService>
+    {
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+
+        public bool IsEnabled(Microsoft.Extensions.Logging.LogLevel logLevel) => true;
+
+        public void Log<TState>(Microsoft.Extensions.Logging.LogLevel logLevel, Microsoft.Extensions.Logging.EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter) =>
+            inner.Log(logLevel, eventId, state, exception, formatter);
+    }
+
+    [Fact]
+    public async Task A_configured_site_whose_sapi_cannot_be_reached_is_still_unavailable()
+    {
+        _client.Responses["/sapi/mediaclip/1"] = SapiResult.Failure(500, "SAPI request failed (500)");
+        Page("https://site.example/a", Clip(1));
+
+        Assert.False((await _service.GetAsync(Site("site.example"), default)).Ok);
     }
 
     [Fact]

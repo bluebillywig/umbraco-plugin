@@ -49,7 +49,8 @@ public interface IVideoSitemapService
 /// thumbnail would be advertised to crawlers while the player is not. A page whose clips are all left out is left out.</item>
 /// <item>A clip that SAPI does not report as published, has no title or thumbnail, or belongs to another publication than
 /// the configured one (no metadata is available for it) is left out.</item>
-/// <item>If SAPI cannot be asked (not configured, an outage), the result is incomplete: the route answers 503 and nothing
+/// <item>A site without credentials answers 200 with an empty, valid urlset (logged once at Information, never cached).</item>
+/// <item>If SAPI is configured but cannot be asked (an outage), the result is incomplete: the route answers 503 and nothing
 /// is cached, so a crawler keeps its last good copy instead of reading a sitemap emptied by an outage.</item>
 /// </list>
 /// A complete sitemap is cached for ten minutes, one entry per canonical site (see <see cref="ConfiguredSitemapHosts"/>: the
@@ -77,6 +78,7 @@ public sealed class VideoSitemapService : IVideoSitemapService
     private readonly ILogger<VideoSitemapService> _logger;
     private readonly TimeProvider _time;
     private readonly IClipPlayoutStore? _playouts;
+    private int _loggedUnconfigured;
     private readonly object _flightLock = new();
     private readonly Dictionary<string, Flight> _flights = new(StringComparer.Ordinal);
     private readonly SemaphoreSlim _oneBuildAtATime = new(1, 1);
@@ -104,6 +106,18 @@ public sealed class VideoSitemapService : IVideoSitemapService
 
     public async Task<SitemapResult> GetAsync(SitemapSite site, CancellationToken ct)
     {
+        // Not configured is not an outage: there is no Blue Billywig content to list, so the answer is a valid, empty urlset.
+        // It is built per request (cheap) and never cached, so connecting is visible at once.
+        if (!_client.IsConnected)
+        {
+            if (Interlocked.Exchange(ref _loggedUnconfigured, 1) == 0)
+            {
+                _logger.LogInformation("Blue Billywig video sitemap: SAPI is not configured, so /video-sitemap.xml answers an empty sitemap until it is.");
+            }
+
+            return new SitemapResult(VideoSitemap.Write([]), true);
+        }
+
         string key = "BlueBillywig.VideoSitemap:" + site.Key;
         if (_cache.TryGetValue(key, out string? cached) && cached is not null)
         {
@@ -178,12 +192,6 @@ public sealed class VideoSitemapService : IVideoSitemapService
     internal async Task<SitemapResult> BuildAsync(SitemapSite site, CancellationToken ct)
     {
         BlueBillywigSettings settings = _settings.Get();
-        if (!_client.IsConnected)
-        {
-            _logger.LogWarning("Blue Billywig video sitemap: SAPI is not configured; the sitemap is unavailable.");
-            return new SitemapResult(null, false);
-        }
-
         IReadOnlyList<SitemapPageCandidate> pages = await _pages.GetPagesAsync(site, ct);
 
         // Only the configured publication has data this package can read.
