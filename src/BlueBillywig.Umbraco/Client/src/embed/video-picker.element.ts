@@ -19,7 +19,7 @@ import {
   type EntityOptionResponseModel,
   type PlayoutOptionResponseModel,
 } from "../api/index.js";
-import { defaultsFor, readValue, type VideoType, type VideoValue } from "./video-value.js";
+import { defaultsFor, readValue, selectionChanged, type VideoType, type VideoValue } from "./video-value.js";
 import { actionRequest, actionTook, applySaved, clipBanner, embargoText, type BannerAction } from "./clip-status.js";
 import { offeredTypes, readFeatures, type EmbedFeatures } from "./features.js";
 import { PREVIEW_ALLOW, PREVIEW_REFERRER_POLICY, PREVIEW_SANDBOX, previewHeight, previewKey, previewQuery } from "./preview.js";
@@ -43,6 +43,7 @@ export class BbVideoPickerElement extends UmbElementMixin(LitElement) implements
   set value(raw: unknown) {
     const parsed = readValue(raw);
     const changedClip = parsed?.type === "clip" && parsed.id !== this._value?.id;
+    if (selectionChanged(this._value, parsed)) this._bannerMessage = this._bannerError = undefined;
     this._value = parsed;
     if (changedClip && parsed) void this.#loadSelectedClip(parsed.id);
     if (!parsed) this._selectedClip = undefined;
@@ -86,7 +87,7 @@ export class BbVideoPickerElement extends UmbElementMixin(LitElement) implements
 
   /** Channel and shorts are offered only when the publication has some. A failed call changes nothing: every type stays offered. */
   async #loadFeatures() {
-    const { data, error } = await tryExecute(this, getFeatures());
+    const { data, error } = await tryExecute(this, getFeatures(), { disableNotifications: true });
     this._features = readFeatures(data, error);
   }
 
@@ -96,7 +97,7 @@ export class BbVideoPickerElement extends UmbElementMixin(LitElement) implements
     const key = previewKey(v);
     this._previewBusy = true;
     this._previewError = undefined;
-    const { data, error } = await tryExecute(this, getPreview({ query: previewQuery(v) }));
+    const { data, error } = await tryExecute(this, getPreview({ query: previewQuery(v) }), { disableNotifications: true });
     this._previewBusy = false;
     // The value may have changed while the call was out: a URL for another value is never shown.
     if (previewKey(this._value) !== key) return;
@@ -110,7 +111,7 @@ export class BbVideoPickerElement extends UmbElementMixin(LitElement) implements
     this._bannerBusy = true;
     this._bannerError = undefined;
     this._bannerMessage = undefined;
-    const { data, error } = await tryExecute(this, putLibraryClipsById({ path: { id: clip.id }, body: actionRequest(action) }));
+    const { data, error } = await tryExecute(this, putLibraryClipsById({ path: { id: clip.id }, body: actionRequest(action) }), { disableNotifications: true });
     this._bannerBusy = false;
     if (error) {
       this._bannerError = saveError(error, "clip status", this.#t);
@@ -134,12 +135,12 @@ export class BbVideoPickerElement extends UmbElementMixin(LitElement) implements
   async #askCanEditClip() {
     if (this._canEditClip !== undefined) return;
     this._canEditClip = false;
-    const { error } = await tryExecute(this, getLibraryCapabilities());
+    const { error } = await tryExecute(this, getLibraryCapabilities(), { disableNotifications: true });
     this._canEditClip = !error;
   }
 
   async #loadPlayouts() {
-    const { data, error } = await tryExecute(this, getPlayouts());
+    const { data, error } = await tryExecute(this, getPlayouts(), { disableNotifications: true });
     if (error || !data) {
       this._error = libraryError(error, "playouts", this.#t);
       this._retry = "playouts";
@@ -162,7 +163,7 @@ export class BbVideoPickerElement extends UmbElementMixin(LitElement) implements
       return;
     }
     this._loading = true;
-    const { data, error } = await tryExecute(this, this._type === "channel" ? getChannels() : getShorts());
+    const { data, error } = await tryExecute(this, this._type === "channel" ? getChannels() : getShorts(), { disableNotifications: true });
     this._loading = false;
     if (error || !data) {
       this._error = libraryError(error, this._type === "channel" ? "channels" : "shorts", this.#t);
@@ -176,7 +177,7 @@ export class BbVideoPickerElement extends UmbElementMixin(LitElement) implements
     this.#searchTimer = setTimeout(async () => {
       this._loading = true;
       this._error = undefined;
-      const { data, error } = await tryExecute(this, getClips({ query: this._query ? { search: this._query } : {} }));
+      const { data, error } = await tryExecute(this, getClips({ query: this._query ? { search: this._query } : {} }), { disableNotifications: true });
       if (seq !== this.#searchSeq) return;
       this._loading = false;
       if (error || !data) {
@@ -196,6 +197,8 @@ export class BbVideoPickerElement extends UmbElementMixin(LitElement) implements
   }
 
   #commit(value: VideoValue | undefined) {
+    // "Embargo removed." and the like describe the clip that was selected: gone with it, or replaced by another.
+    if (selectionChanged(this._value, value)) this._bannerMessage = this._bannerError = undefined;
     this._value = value;
     this.dispatchEvent(new UmbChangeEvent());
   }
