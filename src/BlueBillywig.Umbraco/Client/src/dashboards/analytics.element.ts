@@ -38,7 +38,7 @@ export class BbAnalyticsDashboardElement extends UmbElementMixin(LitElement) {
   async #load() {
     this._loading = true;
     this._error = undefined;
-    const { data, error } = await tryExecute(this, getAnalyticsDashboard());
+    const { data, error } = await tryExecute(this, getAnalyticsDashboard(), { disableNotifications: true });
     this._loading = false;
     if (error || !data) {
       const sections = (error as { problemDetails?: { sections?: string[] } } | undefined)?.problemDetails?.sections;

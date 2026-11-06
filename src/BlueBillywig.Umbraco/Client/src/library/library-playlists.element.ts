@@ -27,7 +27,7 @@ export class BbLibraryPlaylistsElement extends UmbElementMixin(LitElement) {
     const seq = ++this.#seq;
     this._loading = true;
     this._error = undefined;
-    const { data, error } = await tryExecute(this, getLibraryPlaylists({ query: { search: this._search || undefined, page: this._page } }));
+    const { data, error } = await tryExecute(this, getLibraryPlaylists({ query: { search: this._search || undefined, page: this._page } }), { disableNotifications: true });
     if (seq !== this.#seq) return;
     this._loading = false;
     if (error || !data) {

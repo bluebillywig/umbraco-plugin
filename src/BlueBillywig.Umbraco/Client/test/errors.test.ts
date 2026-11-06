@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDate, formatDuration, libraryError, saveError, statusOf } from "../src/library/errors";
+import { defaultApiAddress, errorText, formatDate, formatDuration, libraryError, saveError, statusOf } from "../src/library/errors";
 
 describe("statusOf", () => {
   it("reads the HTTP status of a failed call", () => {
@@ -92,5 +92,38 @@ describe("formatDate", () => {
 
   it("formats a real date as local text", () => {
     expect(formatDate("2026-11-04T10:00:00Z")).toBe(new Date("2026-11-04T10:00:00Z").toLocaleString());
+  });
+});
+
+describe("errorText", () => {
+  it("prefers the error extension, then detail, then the first of errors", () => {
+    expect(errorText({ problemDetails: { error: "A", detail: "B", title: "Bad Request" } })).toBe("A");
+    expect(errorText({ problemDetails: { detail: "B", title: "Bad Request" } })).toBe("B");
+    expect(errorText({ problemDetails: { errors: ["C", "D"], title: "Bad Request" } })).toBe("C");
+    expect(errorText({ problemDetails: { errors: { request: ["E"] }, title: "x" } })).toBe("E");
+  });
+
+  it("uses the status title only as a last resort and is undefined for nothing", () => {
+    expect(errorText({ message: "Network down", problemDetails: { title: "Bad Request" } })).toBe("Network down");
+    expect(errorText({ problemDetails: { title: "Bad Request" } })).toBe("Bad Request");
+    expect(errorText(undefined)).toBeUndefined();
+    expect(errorText({ problemDetails: { error: "  " } })).toBeUndefined();
+  });
+
+  it("skips blank and non-string values", () => {
+    expect(errorText({ problemDetails: { error: 5, detail: "" }, error: "X" })).toBe("X");
+  });
+});
+
+describe("defaultApiAddress", () => {
+  it("shows the address for a valid publication", () => {
+    expect(defaultApiAddress("my-publication")).toBe("https://my-publication.bbvms.com");
+    expect(defaultApiAddress("a.b")).toBe("https://a.b.bbvms.com");
+  });
+
+  it("shows nothing until the publication is valid", () => {
+    for (const bad of [undefined, null, "", "ab", "bad host/../x!", "Upper", "a..b", "-ab", "ab-", "x".repeat(64)]) {
+      expect(defaultApiAddress(bad)).toBe("");
+    }
   });
 });

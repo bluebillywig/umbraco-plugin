@@ -25,7 +25,7 @@ export class BbLibraryPlatformElement extends UmbElementMixin(LitElement) {
 
   override async connectedCallback() {
     super.connectedCallback();
-    const { data, error } = await tryExecute(this, getStatus());
+    const { data, error } = await tryExecute(this, getStatus(), { disableNotifications: true });
     if (error || !data) this._error = libraryError(error, "platform details");
     else this._status = data;
   }

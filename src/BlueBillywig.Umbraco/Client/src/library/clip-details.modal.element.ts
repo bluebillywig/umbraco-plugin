@@ -67,7 +67,7 @@ export class BbClipDetailsModalElement extends UmbModalBaseElement<ClipDetailsMo
 
   async #loadPreview() {
     if (!this._clip) return;
-    const { data, error } = await tryExecute(this, getLibraryClipsByIdPreview({ path: { id: this._clip.id } }));
+    const { data, error } = await tryExecute(this, getLibraryClipsByIdPreview({ path: { id: this._clip.id } }), { disableNotifications: true });
     if (error || !data) {
       this._error = libraryError(error, "preview");
       return;
@@ -78,7 +78,7 @@ export class BbClipDetailsModalElement extends UmbModalBaseElement<ClipDetailsMo
 
   async #copyEmbed() {
     if (!this._clip) return;
-    const { data, error } = await tryExecute(this, getLibraryClipsByIdEmbedCode({ path: { id: this._clip.id } }));
+    const { data, error } = await tryExecute(this, getLibraryClipsByIdEmbedCode({ path: { id: this._clip.id } }), { disableNotifications: true });
     if (error || !data) {
       this._error = libraryError(error, "embed code");
       return;
@@ -101,7 +101,7 @@ export class BbClipDetailsModalElement extends UmbModalBaseElement<ClipDetailsMo
       confirmLabel: "Delete",
     });
     this._busy = true;
-    const { error } = await tryExecute(this, deleteLibraryClipsById({ path: { id: this._clip.id } }));
+    const { error } = await tryExecute(this, deleteLibraryClipsById({ path: { id: this._clip.id } }), { disableNotifications: true });
     this._busy = false;
     if (error) {
       this._error = statusOf(error) === 403 ? "You do not have permission to delete videos." : libraryError(error, "video");
