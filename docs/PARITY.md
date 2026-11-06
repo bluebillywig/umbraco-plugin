@@ -290,7 +290,7 @@ Parity is **not** proven: rows are still Partial, so the goal stated at the top 
 
 Found in the 2026-11-05 browser round on HEAD 4e8fb98 and the install test of rc.1 the same day.
 
-- (a) Library search for a full hyphenated term (for example `umbraco-poc-test-b1`) returned the unfiltered default list while its parts (`umbraco`, `poc`, `b1`) filtered. The package sends the term escaped as `q=umbraco\-poc\-test\-b1` and nothing else (the reference plugin escapes the same way); the cause is not confirmed against the platform and is documented in [USER-GUIDE.md](USER-GUIDE.md) as probable upstream behaviour. Workaround: search for one part.
+- (a) Library search for a full hyphenated term returned most of the library: Blue Billywig reads an unquoted hyphenated word as several OR-ed words (2026-11-06, development publication: `verify-10` 21 hits, `verify\-10` 22 hits, the quoted phrase 1 hit). Fixed: a single hyphenated word is now sent as a quoted phrase (unit-tested; not yet observed in the browser, not released).
 - (d) Uploads ignore the chosen status on bb.dev (U3).
 - (e) SAPI cannot set archived or clear an embargo on bb.dev (M1, M3, E24); a past marker stands in for the embargo.
 

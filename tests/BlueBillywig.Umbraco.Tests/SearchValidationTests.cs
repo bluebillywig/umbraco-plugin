@@ -22,16 +22,33 @@ public class SearchValidationTests
     }
 
     [Fact]
-    public void A_hyphenated_term_is_sent_as_one_escaped_q_with_nothing_else_added()
+    public void A_single_hyphenated_word_is_sent_as_one_quoted_phrase()
     {
-        // Pins what goes to SAPI for a full hyphenated term (the reference plugin escapes it the same way). An install test saw
-        // such a term return the unfiltered list while its parts filtered; whether that is SAPI's reading of "\-" is
-        // documented in docs/USER-GUIDE.md as not confirmed.
+        // SAPI reads an unquoted hyphenated word as several OR-ed words and matched most of the library; the quoted phrase
+        // matches the clip (checked on the development publication, 2026-11-06).
         Assert.True(LibraryQuery.TryParse("umbraco-poc-test-b1", null, null, null, null, null, null, out LibraryFilter filter, out _));
 
         Dictionary<string, string> query = LibraryQuery.ToSapiQuery(filter, 15);
 
-        Assert.Equal(@"umbraco\-poc\-test\-b1", query["q"]);
+        Assert.Equal("\"umbraco-poc-test-b1\"", query["q"]);
         Assert.False(query.ContainsKey("fq[]"));
+    }
+
+    [Theory]
+    [InlineData("verify", @"verify")]
+    [InlineData("two words", "two words")]
+    [InlineData("a-b c", @"a\-b c")]
+    [InlineData("a:b", @"a\:b")]
+    public void Anything_but_a_single_hyphenated_word_keeps_the_escaping(string search, string expected)
+    {
+        Assert.Equal(expected, LibraryQuery.BuildSearchQuery(search));
+    }
+
+    [Theory]
+    [InlineData("a-\"b", "\"a-\\\"b\"")]
+    [InlineData(@"a-\b", "\"a-\\\\b\"")]
+    public void Quotes_and_backslashes_inside_a_quoted_phrase_are_escaped(string search, string expected)
+    {
+        Assert.Equal(expected, LibraryQuery.BuildSearchQuery(search));
     }
 }

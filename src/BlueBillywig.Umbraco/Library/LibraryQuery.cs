@@ -90,7 +90,7 @@ public static partial class LibraryQuery
 
         if (filter.Search.Length > 0)
         {
-            query["q"] = EscapeSolr(filter.Search);
+            query["q"] = BuildSearchQuery(filter.Search);
         }
 
         // One fq joined with AND: the query dictionary cannot repeat the fq[] key, and the result is the same.
@@ -153,6 +153,20 @@ public static partial class LibraryQuery
         text = new string(text.Select(c => char.IsControl(c) ? ' ' : c).ToArray());
         text = WhitespacePattern().Replace(text, " ").Trim();
         return text.Length > MaxSearchLength ? text[..MaxSearchLength].TrimEnd() : text;
+    }
+
+    /// <summary>
+    /// The <c>q</c> value for a search box entry. SAPI reads an unquoted hyphenated word as several OR-ed words (checked
+    /// 2026-11-06 on the development publication: <c>verify-10</c> and <c>verify\-10</c> matched 21 and 22 clips, the quoted phrase
+    /// matched exactly 1), so a single hyphenated word is sent as a quoted phrase. Anything else keeps the escaping that
+    /// the reference plugin applies. Inside the quotes only the quote and the backslash need escaping.
+    /// </summary>
+    public static string BuildSearchQuery(string search)
+    {
+        bool oneHyphenatedWord = search.Contains('-') && !search.Any(char.IsWhiteSpace);
+        return oneHyphenatedWord
+            ? "\"" + search.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\""
+            : EscapeSolr(search);
     }
 
     /// <summary>Backslash-escapes Solr's special characters, the set the reference plugin escapes with <c>addcslashes</c>.</summary>

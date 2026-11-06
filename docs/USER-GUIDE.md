@@ -70,7 +70,7 @@ Open the **Blue Billywig** section (top bar). Tabs: **Videos**, **Livestreams**,
 *The Videos tab: search and filters on top, clips as tiles, pages below.*
 
 - **Videos.** A grid of your clips, paginated. Search by title, description or tags; filter by **Published from** and **Published to** and by **Media type** (all, video, audio, image, document); **Clear filters** resets. A **Folders** tree on the side narrows to a folder; it appears only when the publication has folders (checked with stubbed data only: the development publication has none, so it is not in the screenshots). Hover over a picture for a short silent preview, where the clip has one (not on touch screens or with reduced motion).
-  - *Search with a hyphenated term:* the package sends the whole term to Blue Billywig with each hyphen escaped (`umbraco\-poc\-test\-b1`), as the reference plugin does. In one install test a full hyphenated term returned the unfiltered list while its parts (`umbraco`, `poc`) filtered. The package sends nothing else with the term, so this looks like how Blue Billywig's search reads an escaped hyphen, but that was not confirmed against the platform. If a term with hyphens shows everything, search for one part of it.
+  - *Search with a hyphenated word:* a single hyphenated word (for example `verify-10`) is sent to Blue Billywig as a quoted phrase, because Blue Billywig otherwise reads it as several separate words and returns most of the library. A search of several words is sent as typed, with special characters escaped.
 
 ![The Videos tab with the term quick typed into the search box; the grid shows the two matching clips](images/library-search.png)
 
